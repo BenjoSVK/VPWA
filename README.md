@@ -3,7 +3,7 @@
 **Technológie:**  
 - Frontend: [Quasar (Vue 3, PWA)](https://quasar.dev/)  
 - Backend: [AdonisJS](https://adonisjs.com/)  
-- Databáza: PostgreSQL  
+- Databáza: [PostgreSQL](https://www.postgresql.org)
 
 ---
 
