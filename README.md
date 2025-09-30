@@ -1,4 +1,4 @@
-# Nexus IRC (Slack-style) – Quasar + AdonisJS Monorepo
+# Nexus IRC (Slack-style) – Quasar + AdonisJS
 
 **Technológie:**  
 - Frontend: [Quasar (Vue 3, PWA)](https://quasar.dev/)  
