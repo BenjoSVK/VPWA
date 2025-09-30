@@ -60,8 +60,6 @@ Použité sú **Quasar, AdonisJS a PostgreSQL**. Ostatné podporné knižnice kt
 - Migrácie databázy
 - Dokumentácia a seed dáta
 
-### Fáza 3
-- Možný deployment v budúcnosti
 ---
 
 ## 🗂 Štruktúra repozitára
