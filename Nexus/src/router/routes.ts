@@ -10,8 +10,14 @@ const routes: RouteRecordRaw[] = [
   // Always leave this as last one,
   // but you can also remove it
   {
+    //TODO login page, register page, etc.
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),
+  },
+  {
+    path: '/chat',
+    component: () => import('layouts/ChatLayout.vue'),
+    children: [{ path: '', component: () => import('pages/ChannelPages.vue') }],
   },
 ];
 
