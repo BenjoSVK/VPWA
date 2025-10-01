@@ -1,1 +1,26 @@
 // app global css in SCSS form
+$primary-color: #1A2537;
+$secondary-color: #0E1728;
+$tertiary-color: #175CFC;
+$quaternary-color: #9710FA;
+$primary-gradient: linear-gradient(to bottom right, $primary-color, $secondary-color);
+$secondary-gradient: linear-gradient(to bottom right, $tertiary-color, $quaternary-color);
+
+.bg-pri-grad {
+  background: $primary-gradient;
+}
+
+.bg-sec-grad {
+  background: $secondary-gradient;
+}
+
+.glass-bg {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.bg-rad{
+  border-radius: 20px;
+}
