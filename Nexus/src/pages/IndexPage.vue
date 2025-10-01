@@ -1,43 +1,45 @@
 <template>
-  <q-page class="row items-center justify-evenly">
-    <example-component
-      title="Example component"
-      active
-      :todos="todos"
-      :meta="meta"
-    ></example-component>
+  <q-page>
+    <nav class="bg-glass row justify-center items-center">
+      <div class="limited-width row justify-between items-center">
+        <div class="row items-center">
+          <div
+            style="width: 32px; height: 32px"
+            class="row items-center justify-center bg-gradient-secondary border-rad"
+          >
+            <img src="~assets/Icon.svg" alt="Icon" width="20px" height="20px" />
+          </div>
+          <p class="text-dark text-h6 q-ma-none q-mx-md">Nexus</p>
+          <div style="background-color: #eceef2" class="row items-center border-rad">
+            <p class="q-ma-none q-mx-sm text-dark">IRC Chat</p>
+          </div>
+        </div>
+        <div class="row items-center">
+          <IndexButton variant="outline" text="Login" @click="handleDocumentation" />
+          <IndexButton
+            variant="primary"
+            text="GitHub"
+            @click="handleGithub"
+            class="q-ml-sm"
+          />
+        </div>
+      </div>
+    </nav>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import type { Todo, Meta } from 'components/models';
-import ExampleComponent from 'components/ExampleComponent.vue';
+import IndexButton from 'components/IndexButton.vue';
 
-const todos = ref<Todo[]>([
-  {
-    id: 1,
-    content: 'ct1'
-  },
-  {
-    id: 2,
-    content: 'ct2'
-  },
-  {
-    id: 3,
-    content: 'ct3'
-  },
-  {
-    id: 4,
-    content: 'ct4'
-  },
-  {
-    id: 5,
-    content: 'ct5'
-  }
-]);
+function handleGithub() {
+  window.open('https://github.com');
+}
 
-const meta = ref<Meta>({
-  totalCount: 1200
-});
+function handleDocumentation() {
+  window.open('https://github.com');
+}
 </script>
+
+<style lang="scss" scoped>
+@import '../css/index.scss';
+</style>
