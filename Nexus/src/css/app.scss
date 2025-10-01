@@ -1,26 +1,79 @@
-// app global css in SCSS form
-$primary-color: #1A2537;
-$secondary-color: #0E1728;
-$tertiary-color: #175CFC;
-$quaternary-color: #9710FA;
-$primary-gradient: linear-gradient(to bottom right, $primary-color, $secondary-color);
-$secondary-gradient: linear-gradient(to bottom right, $tertiary-color, $quaternary-color);
+// Base resets
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-.bg-pri-grad {
-  background: $primary-gradient;
+  body {
+    background: linear-gradient(135deg, #EFF6FF 0%, #FFF 50%, #FAF5FF 100%);
+  }
+
+  ul, ol {
+    list-style: none;
+  }
+
+  button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+a {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
-.bg-sec-grad {
-  background: $secondary-gradient;
-}
+// Color Text
+.text-primary { color: $text-primary; }
+.text-secondary { color: $text-secondary; }
 
-.glass-bg {
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-}
+.text-success { color: $success; }
+.text-warning { color: $warning; }
+.text-danger { color: $danger; }
 
-.bg-rad{
-  border-radius: 20px;
+.text-dark { color: $secondary-color; }
+.text-light { color: #ffffff; }
+
+// Color Background
+.bg-primary { background-color: $primary-color; }
+.bg-secondary { background-color: $secondary-color; }
+.bg-tertiary { background-color: $tertiary-color; }
+.bg-quaternary { background-color: $quaternary-color; }
+
+.bg-success { background-color: $success; }
+.bg-warning { background-color: $warning; }
+.bg-danger { background-color: $danger; }
+
+.bg-white { background-color: #ffffff; }
+.bg-black { background-color: #000000; }
+
+.bg-gradient-primary { background: $primary-gradient; }
+.bg-gradient-secondary { background: $secondary-gradient; }
+
+.bg-glass {
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+// Shadow
+.shadow-xs { box-shadow: $shadow-xs; }
+.shadow-sm { box-shadow: $shadow-sm; }
+.shadow-md { box-shadow: $shadow-md; }
+.shadow-none { box-shadow: none; }
+
+// Border radius
+.border-rad { border-radius: 10px; }
+
+// debugging layout sizes
+.debug-border { 
+    border: 1px dashed rgba(248, 251, 255, 0.3);
+    background-color: rgba(151, 16, 250, 0.18);
 }
