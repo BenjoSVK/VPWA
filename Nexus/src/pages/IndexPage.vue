@@ -155,6 +155,9 @@ import GithubSvg from 'assets/GithubIcon.svg';
 import BoltSvg from 'assets/Bolt.svg';
 import Play from 'assets/Play.svg';
 import OutBox from 'assets/outBox.svg';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 function handleGithub() {
   window.open('https://github.com');
@@ -164,8 +167,8 @@ function handleDocumentation() {
   window.open('https://github.com');
 }
 
-function handleNexus() {
-  window.location.href = '/chatlayout';
+async function handleNexus() {
+  await router.push('/Chat');
 }
 </script>
 
