@@ -4,7 +4,7 @@
     :disabled="disabled"
     @click="handleClick"
   >
-    <q-icon v-if="icon" :name="icon" class="q-mr-xs" />
+    <img v-if="icon" :src="icon" class="icon-custom q-mr-xs" />
     <slot>{{ text }}</slot>
   </button>
 </template>
@@ -88,17 +88,24 @@ function handleClick(event: MouseEvent) {
     border: 1px solid rgba(0, 0, 0, 0.1);
     
     &:hover:not(:disabled) {
-      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-1px);
+      box-shadow: $shadow-sm;
     }
   }
   
   &-ghost {
     background: transparent;
-    color: $text-primary;
+    color: $primary-color;
     
     &:hover:not(:disabled) {
-      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-1px);
     }
   }
+}
+
+.icon-custom {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
 }
 </style>
