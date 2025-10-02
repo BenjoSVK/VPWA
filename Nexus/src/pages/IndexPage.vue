@@ -16,12 +16,7 @@
         </div>
         <div class="row items-center">
           <IndexButton variant="outline" text="Login" @click="handleDocumentation" />
-          <IndexButton
-            variant="primary"
-            text="GitHub"
-            @click="handleGithub"
-            class="q-ml-sm"
-          />
+          <IndexButton variant="primary" text="GitHub" @click="handleGithub" class="q-ml-sm" />
         </div>
       </div>
     </nav>

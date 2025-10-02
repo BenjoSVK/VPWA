@@ -1,11 +1,19 @@
-<template>
-  <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+<template class="left-panel">
+  <q-drawer class="bg-gradient-primary" v-model="leftDrawerOpen" show-if-above>
     <q-list>
-      <q-item-label header> Nexus </q-item-label>
+      <div class="row justify-between q-pa-md q-mb-md">
+        <div
+          style="width: 60px; height: 60px; border-radius: 18px"
+          class="row items-center justify-center bg-gradient-secondary"
+        >
+          <img src="~assets/Icon.svg" alt="Icon" width="40px" height="40px" />
+        </div>
+        <q-item-label header class="text-light"> Nexus </q-item-label>
 
-      <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
+        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
+      </div>
 
-      <GroupItem v-for="link in linksList" :key="link.name" v-bind="link" />
+      <GroupItem v-for="link in linksList" :key="link.name" v-bind="link" class="text-light" />
     </q-list>
   </q-drawer>
 </template>
@@ -17,7 +25,7 @@ const leftDrawerOpen = ref(false);
 
 const linksList: GroupProps[] = [
   {
-    icon: 'svguse:/src/assets/favourites.svg',
+    icon: 'svguse:@/favourites.svg',
     name: 'Favorites',
     size: '30px',
   },

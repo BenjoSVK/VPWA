@@ -1,12 +1,5 @@
 <template>
-  <q-drawer
-    side="right"
-    arial-label="Users online"
-    show-if-above
-    bordered
-    :width="310"
-    :breakpoint="500"
-  >
+  <q-drawer side="right" arial-label="Users online" show-if-above bordered :width="310">
     <p class="q-pa-md">Users online</p>
     <GroupItem v-for="link in linksList" :key="link.name" v-bind="link" />
   </q-drawer>
