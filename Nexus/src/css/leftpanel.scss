@@ -1,0 +1,40 @@
+.hamburger-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 14px;
+}
+.hamburger-btn > img {
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+}
+.hamburger-btn:hover > img {
+    background-color: rgba(255, 255, 255, 0.2);
+    transition: background-color 0.3s ease;
+}
+
+.logo-container {
+padding-left: 10px;
+padding-right: 10px;
+}
+
+.logo-label {
+    padding-left: 12px;
+}
+
+.logo-visible {
+    border-radius: 12.5px;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 7.5px;
+}
+
+.logo-visible > img {
+    width: 25px;
+    height: 25px;
+}
+
+.logo-hidden {
+    display: none;
+    background-color: $secondary-gradient;
+}

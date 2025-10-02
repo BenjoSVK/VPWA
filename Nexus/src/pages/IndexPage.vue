@@ -160,11 +160,11 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 function handleGithub() {
-  window.open('https://github.com');
+  window.open('https://github.com/BenjoSVK/VPWA');
 }
 
 function handleDocumentation() {
-  window.open('https://github.com');
+  window.open('https://github.com/BenjoSVK/VPWA#nexus-irc-slack-style--quasar--adonisjs');
 }
 
 async function handleNexus() {
