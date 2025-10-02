@@ -6,7 +6,7 @@
   }
 
   body {
-    background: linear-gradient(135deg, #EFF6FF 0%, #FFF 50%, #FAF5FF 100%);
+    background-color: #F3F8FF;
   }
 
   ul, ol {
@@ -32,6 +32,8 @@ a {
 // Color Text
 .text-primary { color: $text-primary; }
 .text-secondary { color: $text-secondary; }
+.text-tertiary { color: $tertiary-color; }
+.text-quaternary { color: $quaternary-color; }
 
 .text-success { color: $success; }
 .text-warning { color: $warning; }

@@ -10,6 +10,51 @@ nav{
 
 .limited-width{
     max-width: 1200px;
-    // margin: 0 auto;
+    width: 100%;
     padding: 0 126px;
+}
+
+body {
+    margin-top: 145px;
+}
+
+.header {
+    background: $secondary-gradient;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.header-container {
+    h1{
+        max-width: 11em;
+    }
+    h2 {
+        max-width: 34em;
+    }
+}
+
+.showroom-container {
+    margin-top: 145px;
+}
+
+.why-container {
+    .img-container{
+        padding: 12px;
+        border-radius: 10px;
+        background: #F3F4F6;
+    }
+    .blue-container .img-container{
+        background: #DBEAFE;
+    }
+    > div > div > div{
+        border-radius: 14px;
+        border: 1px solid rgba(0, 0, 0, 0.10);
+        background: #FFF;
+    }
+    .blue-container {
+        border-radius: 14px;
+        border: 1px solid #BEDBFF;
+        background: rgba(239, 246, 255, 0.50);
+    }
 }
