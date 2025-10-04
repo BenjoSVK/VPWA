@@ -1,6 +1,6 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <ChatHeader />
+    <HeaderBar />
     <LeftPanel />
 
     <q-page-container>
@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import ChatHeader from 'src/pages/ChatHeader.vue';
 import RightPanel from 'src/pages/RightPanel.vue';
 import LeftPanel from 'src/pages/LeftPanel.vue';
+import HeaderBar from 'src/pages/HeaderBar.vue';
 </script>
