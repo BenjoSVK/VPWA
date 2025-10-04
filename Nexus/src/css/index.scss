@@ -58,3 +58,17 @@ body {
         background: rgba(239, 246, 255, 0.50);
     }
 }
+.search-box {
+    min-width: 300px;
+    max-width: 600px;
+}
+.channel-icon {
+    width: 20px;
+    height: 20px;
+}
+.channel-item-icon {
+    padding-right: 12px;
+}
+.channel-name {
+    font-weight: 500;
+}

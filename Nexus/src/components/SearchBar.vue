@@ -23,5 +23,5 @@ const search = ref('');
 </script>
 
 <style lang="scss" scoped>
-@import '../css/navbar.scss';
+@import '../css/index.scss';
 </style>

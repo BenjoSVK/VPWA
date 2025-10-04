@@ -1,7 +1,9 @@
 <template>
   <q-item class="q-px-lg">
-    <q-item-section avatar class="flex items-center justify-center">
-      <div><img :src="icon" :alt="name" class="channel-icon" /></div>
+    <q-item-section avatar class="items-center justify-center channel-item-icon">
+      <div class="flex">
+        <img :src="icon" :alt="name" class="channel-icon" />
+      </div>
     </q-item-section>
 
     <q-item-section>
@@ -21,3 +23,6 @@ withDefaults(defineProps<GroupProps>(), {
   name: 'Unknown',
 });
 </script>
+<style lang="scss" scoped>
+@import '../css/index.scss';
+</style>
