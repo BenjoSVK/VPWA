@@ -75,16 +75,11 @@
           <div class="col-12 col-md-4">
             <div class="q-pa-lg border-rad shadow-xs column items-center blue-container">
               <div class="img-container q-mb-md row items-center justify-center">
-              <img
-                src="~assets/chat.svg"
-                alt="Real-time správy"
-                width="32"
-                height="32"
-              />
+                <img src="~assets/chat.svg" alt="Real-time správy" width="32" height="32" />
               </div>
               <div class="text-h6 q-mb-xs">Real-time správy</div>
               <div class="text-body2 text-secondary">
-                Okamžité doručovanie správ <br/>s WebSocket podporou.
+                Okamžité doručovanie správ <br />s WebSocket podporou.
               </div>
             </div>
           </div>
@@ -92,16 +87,11 @@
           <div class="col-12 col-md-4">
             <div class="q-pa-lg border-rad shadow-xs column items-center">
               <div class="img-container q-mb-md row items-center justify-center">
-              <img
-                src="~assets/teams.svg"
-                alt="Kanály a tímy"
-                width="32"
-                height="32"
-              />
+                <img src="~assets/teams.svg" alt="Kanály a tímy" width="32" height="32" />
               </div>
               <div class="text-h6 q-mb-xs">Kanály a tímy</div>
               <div class="text-body2 text-secondary">
-                Organizujte komunikáciu v kanáloch <br/>s praktickým párom používateľov.
+                Organizujte komunikáciu v kanáloch <br />s praktickým párom používateľov.
               </div>
             </div>
           </div>
@@ -109,16 +99,11 @@
           <div class="col-12 col-md-4">
             <div class="q-pa-lg border-rad shadow-xs column items-center blue-container">
               <div class="img-container q-mb-md row items-center justify-center">
-              <img
-                src="~assets/phone.svg"
-                alt="PWA podpora"
-                width="32"
-                height="32"
-              />
+                <img src="~assets/phone.svg" alt="PWA podpora" width="32" height="32" />
               </div>
               <div class="text-h6 q-mb-xs">PWA podpora</div>
               <div class="text-body2 text-secondary">
-                Funguje ako natívna aplikácia na desktop <br/>aj mobile zariadeniach.
+                Funguje ako natívna aplikácia na desktop <br />aj mobile zariadeniach.
               </div>
             </div>
           </div>
@@ -126,16 +111,11 @@
           <div class="col-12 col-md-4">
             <div class="q-pa-lg border-rad shadow-xs column items-center">
               <div class="img-container q-mb-md row items-center justify-center">
-              <img
-                src="~assets/shield.svg"
-                alt="Bezpečnosť"
-                width="32"
-                height="32"
-              />
+                <img src="~assets/shield.svg" alt="Bezpečnosť" width="32" height="32" />
               </div>
               <div class="text-h6 q-mb-xs">Bezpečnosť</div>
               <div class="text-body2 text-secondary">
-                JWT autentifikácia a zabezpečené API <br/>endpointy s Adonis OAT.
+                JWT autentifikácia a zabezpečené API <br />endpointy s Adonis OAT.
               </div>
             </div>
           </div>
@@ -143,16 +123,11 @@
           <div class="col-12 col-md-4">
             <div class="q-pa-lg border-rad shadow-xs column items-center blue-container">
               <div class="img-container q-mb-md row items-center justify-center">
-              <img
-                src="~assets/bolt_blue.svg"
-                alt="Výkonný stack"
-                width="32"
-                height="32"
-              />
+                <img src="~assets/bolt_blue.svg" alt="Výkonný stack" width="32" height="32" />
               </div>
               <div class="text-h6 q-mb-xs">Výkonný stack</div>
               <div class="text-body2 text-secondary">
-                Vue 3 + Quasar + AdonisJS pre modernú <br/>a škálovateľnú architektúru.
+                Vue 3 + Quasar + AdonisJS pre modernú <br />a škálovateľnú architektúru.
               </div>
             </div>
           </div>
@@ -160,16 +135,11 @@
           <div class="col-12 col-md-4">
             <div class="q-pa-lg border-rad shadow-xs column items-center">
               <div class="img-container q-mb-md row items-center justify-center">
-              <img
-                src="~assets/database.svg"
-                alt="PostgreSQL"
-                width="32"
-                height="32"
-              />
+                <img src="~assets/database.svg" alt="PostgreSQL" width="32" height="32" />
               </div>
               <div class="text-h6 q-mb-xs">PostgreSQL</div>
               <div class="text-body2 text-secondary">
-                Spoľahlivá databáza s Lucid ORM pre <br/>optimálny výkon.
+                Spoľahlivá databáza s Lucid ORM pre <br />optimálny výkon.
               </div>
             </div>
           </div>
@@ -186,17 +156,20 @@ import GithubSvg from 'assets/GithubIcon.svg';
 import BoltSvg from 'assets/Bolt.svg';
 import Play from 'assets/Play.svg';
 import OutBox from 'assets/outBox.svg';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 function handleGithub() {
-  window.open('https://github.com');
+  window.open('https://github.com/BenjoSVK/VPWA');
 }
 
 function handleDocumentation() {
-  window.open('https://github.com');
+  window.open('https://github.com/BenjoSVK/VPWA#nexus-irc-slack-style--quasar--adonisjs');
 }
 
-function handleNexus() {
-  window.location.href = '/chatlayout';
+async function handleNexus() {
+  await router.push('/Chat');
 }
 </script>
 
