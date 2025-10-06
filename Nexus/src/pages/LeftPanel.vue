@@ -1,26 +1,32 @@
-<template class="left-panel">
-  <q-drawer class="bg-gradient-primary" show-if-above :mini="DrawerOpen" :mini-width="80" bordered>
+<template>
+  <q-drawer
+    class="bg-gradient-primary"
+    show-if-above
+    :mini="ui.drawerState"
+    :mini-width="80"
+    bordered
+  >
     <div class="justify-between column full-height">
-      <div class="items-center" :class="DrawerOpen ? 'q-pt-md' : 'q-py-md q-px-lg row'">
+      <div class="items-center flex" :class="ui.drawerState ? 'q-pt-md' : 'q-py-md q-px-lg row'">
         <div
-          class="items-center justify-center bg-gradient-secondary"
-          :class="DrawerOpen ? 'logo-hidden logo-container' : 'logo-visible row shadow-xs'"
+          class="items-center justify-center bg-gradient-secondary logo row shadow-xs"
+          v-if="!ui.drawerState"
         >
-          <img src="~assets/Icon.svg" alt="Icon" />
+          <img src="/src/assets/Icon.svg" alt="Icon" />
         </div>
         <div
           class="col row items-center align-center"
-          :class="DrawerOpen ? 'justify-center' : 'justify-between'"
+          :class="ui.drawerState ? 'justify-center' : 'justify-between'"
         >
           <q-item-label header class="text-h6 text-light logo-label"> Nexus </q-item-label>
           <div class="hamburger-menu">
-            <button class="hamburger-btn" @click="toggleLeftDrawer" aria-label="Menu">
+            <button class="hamburger-btn" @click="ui.toggleDrawer" aria-label="Menu">
               <img src="/src/assets/menu.svg" alt="menu-icon" />
             </button>
           </div>
         </div>
       </div>
-      <div class="col" :class="DrawerOpen ? 'q-mt-md' : 'q-pt-md'">
+      <div class="col" :class="ui.drawerState ? 'q-mt-md' : 'q-pt-md'">
         <GroupItem
           v-for="link in linksList"
           :key="link.name"
@@ -35,7 +41,7 @@
           <AdminPanel />
         </div>
         <!-- Profile card -->
-        <div class="q-pa-md">
+        <div :class="ui.drawerState ? 'q-py-lg' : 'q-pa-md'">
           <UserProfile />
         </div>
       </div>
@@ -44,11 +50,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
 import GroupItem, { type GroupProps } from 'components/GroupItem.vue';
 import UserProfile from 'components/UserProfileCard.vue';
 import AdminPanel from 'components/AdminPanel.vue';
-const DrawerOpen = ref(false);
+import { useDrawerStore } from 'src/stores/drawer';
+//ui
+const ui = useDrawerStore();
 
 const linksList: GroupProps[] = [
   {
@@ -60,10 +67,6 @@ const linksList: GroupProps[] = [
     name: 'Groups',
   },
 ];
-
-function toggleLeftDrawer() {
-  DrawerOpen.value = !DrawerOpen.value;
-}
 </script>
 
 <style lang="scss" scoped>
