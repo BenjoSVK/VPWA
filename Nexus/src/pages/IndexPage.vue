@@ -26,7 +26,7 @@
         </div>
       </div>
     </nav>
-    <body>
+    <body class="row column justify-center items-center">
       <div class="q-mx-xl header-container">
         <div class="row justify-center items-center column text-center">
           <IndexButton
@@ -57,7 +57,7 @@
           </div>
         </div>
       </div>
-      <div class="q-ma-xl column align-center justify-center text-center showroom-container">
+      <div class="q-ma-xl column align-center justify-center text-center showroom-container limited-width">
         <h2 class="text-h4 q-mb-md">Rozhranie progresívnej aplikácie Nexus</h2>
         <h3 class="text-h6 q-mb-md text-weight-thin q-mb-xl">
           Real-time chatovanie s elegantným dizajnom
@@ -71,7 +71,7 @@
           Moderná technológia, minimalistický dizajn a špičková funkcionalita
         </h3>
 
-        <div class="row q-col-gutter-xl q-row-gutter-xl justify-center q-mb-xl">
+        <div class="row q-col-gutter-xl q-row-gutter-xl justify-center q-mb-xl limited-width">
           <div class="col-12 col-md-4">
             <div class="q-pa-lg border-rad shadow-xs column items-center blue-container">
               <div class="img-container q-mb-md row items-center justify-center">
@@ -175,6 +175,7 @@
           </div>
         </div>
       </div>
+    
     </body>
   </q-page>
 </template>
