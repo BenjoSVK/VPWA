@@ -1,9 +1,7 @@
 <template>
   <q-item class="q-px-lg">
-    <q-item-section avatar class="items-center justify-center channel-item-icon">
-      <div class="flex">
-        <img :src="icon" :alt="name" class="channel-icon" />
-      </div>
+    <q-item-section avatar class="items-center justify-center q-pr-md">
+      <img :src="icon" :alt="name" :width="25" :height="25" />
     </q-item-section>
 
     <q-item-section>
@@ -13,12 +11,12 @@
 </template>
 
 <script setup lang="ts">
-export interface GroupProps {
+export interface GroupsProps {
   icon: string;
   name: string;
 }
 
-withDefaults(defineProps<GroupProps>(), {
+withDefaults(defineProps<GroupsProps>(), {
   icon: 'help',
   name: 'Unknown',
 });

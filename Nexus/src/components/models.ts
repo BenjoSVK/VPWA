@@ -6,3 +6,8 @@ export interface Todo {
 export interface Meta {
   totalCount: number;
 }
+export enum UserState {
+  'Online',
+  'Do Not Disturb',
+  'Offline',
+}

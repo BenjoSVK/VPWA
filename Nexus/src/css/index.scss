@@ -59,53 +59,11 @@ body {
         background: rgba(239, 246, 255, 0.50);
     }
 }
-.search-box {
-    min-width: 300px;
-    max-width: 600px;
-}
-.channel-icon {
-    width: 20px;
-    height: 20px;
-}
-.channel-item-icon {
-    padding-right: 12px;
-}
-.channel-name {
-    font-weight: 500;
-}
-.go-back-icon {
-    width: 2.4375rem;
-    height: 2.4375rem;
-    border-radius: 2.61163rem;
-    border: 0.7px solid rgba(255, 255, 255, 0.40);
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.00) 0%, rgba(255, 255, 255, 0.20) 50%, rgba(0, 0, 0, 0.00) 100%);
-    background-size: 300%;
-    transition: background-position 0.4s ease;
 
-}
-.go-back-icon:hover {
-    background-position: right;
-}
 
-.cursor-pointer {
-    cursor: pointer;
-}
 
-.cursor-pointer:hover {
-    cursor: pointer;
-}
 
-.profile-card {
-    width: 450px;
-    height: 700px;
-    border-radius: 1.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.20);
-    background: rgba(255, 255, 255, 0.10);
-}
-.profile-icon {
-    background-color: rgba(255, 255, 255, 0.20);
-    border-radius: 50px;
-}
+
  .status-online {
     background-color: lightgreen;
     border-radius: 50%;
