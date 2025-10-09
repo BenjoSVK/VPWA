@@ -1,5 +1,5 @@
 <template>
-  <GroupItem
+  <Groups
     icon="/src/assets/settings.svg"
     name="Settings"
     class="text-light"
@@ -7,7 +7,7 @@
   />
 </template>
 <script setup lang="ts">
-import GroupItem from 'components/GroupItem.vue';
+import Groups from 'components/GroupsComponent.vue';
 import { useDrawerStore } from 'src/stores/drawer';
 import { computed } from 'vue';
 

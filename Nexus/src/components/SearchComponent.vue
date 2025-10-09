@@ -1,13 +1,14 @@
 <template>
-  <div class="search-box">
+  <div class="search-box" :width="300">
     <q-input
       v-model="search"
+      label="Search"
       rounded
       outlined
       dense
       debounce="500"
-      placeholder="Search"
       class="q-pa-md"
+      standout
     >
       <template #prepend>
         <img :src="searchIcon" alt="search" />
@@ -23,5 +24,9 @@ const search = ref('');
 </script>
 
 <style lang="scss" scoped>
+.search-box {
+  min-width: 300px;
+  max-width: 600px;
+}
 @import '../css/index.scss';
 </style>

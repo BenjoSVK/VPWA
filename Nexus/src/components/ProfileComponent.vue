@@ -11,12 +11,12 @@
         @click="handleProfileCard"
       />
     </q-avatar>
-    <div v-if="!drawerState" class="col">
+    <div v-if="!drawerState" class="col q-pl-md">
       <div class="text-light items-center">
-        <p class="q-ma-none user-name">User Name</p>
+        <p class="q-ma-none text-weight-medium text-subtitle2">User Name</p>
       </div>
       <div class="text-grey">
-        <p class="q-ma-none user-status">Online</p>
+        <p class="q-ma-none text-weight-regular text-body2">Online</p>
       </div>
     </div>
     <div
@@ -48,5 +48,36 @@ async function handleProfileCard() {
 }
 </script>
 <style lang="scss" scoped>
-@import '../css/leftpanel.scss';
+.user-profile-container {
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 13px;
+}
+.avatar-img {
+  border-style: solid;
+  border-color: rgba(255, 255, 255, 0.1);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+  border-width: 3px;
+}
+.avatar-img:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.avatar-img:active {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.15);
+  filter: brightness(1.2) saturate(1.2);
+}
+
+.user-settings {
+  width: 1.2rem;
+  height: 1.2rem;
+  transition: transform 0.8s ease;
+}
+.user-settings:hover {
+  transform: rotate(135deg);
+}
 </style>
