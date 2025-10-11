@@ -168,7 +168,7 @@ function handleDocumentation() {
 }
 
 async function handleNexus() {
-  await router.push('/Chat');
+  await router.push('/chat');
 }
 </script>
 
