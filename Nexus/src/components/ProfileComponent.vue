@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="items-center justify-center flex"
-    :class="ui.drawerState ? '' : 'user-profile-container'"
-  >
+  <div class="items-center justify-center flex" :class="drw.isMini ? '' : 'user-profile-container'">
     <q-avatar>
       <img
         :src="UserAvatar"
@@ -11,7 +8,7 @@
         @click="handleProfileCard"
       />
     </q-avatar>
-    <div v-if="!drawerState" class="col q-pl-md">
+    <div v-show="!drw.isMini" class="col q-pl-md">
       <div class="text-light items-center">
         <p class="q-ma-none text-weight-medium text-subtitle2">User Name</p>
       </div>
@@ -20,7 +17,7 @@
       </div>
     </div>
     <div
-      v-if="!drawerState"
+      v-show="!drw.isMini"
       class="justify-center align-center items-center flex cursor-pointer q-ma-sm"
     >
       <img
@@ -35,16 +32,14 @@
 
 <script setup lang="ts">
 import UserAvatar from 'src/assets/UserDefault.svg';
-import { useDrawerStore } from 'src/stores/drawer';
-import { computed } from 'vue';
+import { useDrawerStore } from 'src/stores/drawer/drawer';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const ui = useDrawerStore();
-const drawerState = computed(() => ui.drawerState);
+const drw = useDrawerStore();
 
 async function handleProfileCard() {
-  await router.push('/Profile');
+  await router.push('/profile');
 }
 </script>
 <style lang="scss" scoped>
