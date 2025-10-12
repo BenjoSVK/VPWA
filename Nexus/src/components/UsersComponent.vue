@@ -1,5 +1,13 @@
 <template>
-  <q-drawer side="right" aria-label="Users" show-if-above :width="320">
+  <q-drawer
+    side="right"
+    aria-label="Users"
+    show-if-above
+    :width="320"
+    :breakpoint="1023"
+    @mouseenter="onDrawerMouseEnter"
+    @mouseleave="onDrawerMouseLeave"
+  >
     <div class="q-pa-md users-online">
       <p class="text-weight-medium text-subtitle1 q-ma-none">Používatelia</p>
       <p class="text-grey q-pt-xs q-ma-none">{{ onlineCount }} Online</p>
@@ -14,7 +22,12 @@
         class="user"
       >
         <q-item-section avatar>
-          <img v-if="u.icon" :src="u.icon" :alt="u.name" />
+          <img
+            v-if="u.icon"
+            :src="u.icon"
+            :alt="u.name"
+            :class="{ 'is-dimmed': u.status !== 'Online' }"
+          />
         </q-item-section>
 
         <q-item-section>
@@ -34,6 +47,22 @@ import { useUsersStore } from 'src/stores/drawer/users';
 const Users = useUsersStore();
 const { sorted, onlineCount } = storeToRefs(Users);
 
+function onDrawerMouseEnter() {
+  document.body.style.overflow = 'hidden';
+  const drawer = document.querySelector('.q-drawer');
+  if (drawer) {
+    (drawer as HTMLElement).style.overflow = 'auto';
+  }
+}
+
+function onDrawerMouseLeave() {
+  document.body.style.overflow = '';
+  const drawer = document.querySelector('.q-drawer');
+  if (drawer) {
+    (drawer as HTMLElement).style.overflow = '';
+  }
+}
+
 onMounted(async () => {
   await Users.loadMock(); // For BE fetchFromApi() or smth like that
   window.addEventListener('focus', () => void Users.reloadUsers());
@@ -50,6 +79,10 @@ onMounted(async () => {
 }
 .users-online {
   border-bottom: 1.5px solid #f3f4f6;
+}
+.is-dimmed {
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
 }
 @import '../css/index.scss';
 </style>

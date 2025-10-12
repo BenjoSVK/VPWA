@@ -21,9 +21,9 @@
       class="justify-center align-center items-center flex cursor-pointer q-ma-sm"
     >
       <img
-        src="/src/assets/settings.svg"
+        src="/src/assets/notification.svg"
         name="Settings"
-        class="text-light user-settings"
+        class="text-light"
         @click="handleProfileCard"
       />
     </div>
@@ -65,14 +65,5 @@ async function handleProfileCard() {
   transform: scale(1.05);
   box-shadow: 0 6px 16px rgba(255, 255, 255, 0.15);
   filter: brightness(1.2) saturate(1.2);
-}
-
-.user-settings {
-  width: 1.2rem;
-  height: 1.2rem;
-  transition: transform 0.8s ease;
-}
-.user-settings:hover {
-  transform: rotate(135deg);
 }
 </style>
