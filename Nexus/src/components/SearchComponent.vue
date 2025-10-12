@@ -28,5 +28,4 @@ const search = ref('');
   min-width: 300px;
   max-width: 600px;
 }
-@import '../css/index.scss';
 </style>

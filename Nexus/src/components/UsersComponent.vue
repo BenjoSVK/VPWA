@@ -84,5 +84,4 @@ onMounted(async () => {
   opacity: 0.7;
   transition: opacity 0.3s ease;
 }
-@import '../css/index.scss';
 </style>

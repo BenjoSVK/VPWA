@@ -119,6 +119,4 @@ function onDrawerMouseLeave() {
 .hamburger-icon:hover .user-settings {
   transform: rotate(135deg);
 }
-
-@import '../css/index.scss';
 </style>

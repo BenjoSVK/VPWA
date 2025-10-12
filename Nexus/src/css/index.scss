@@ -66,24 +66,26 @@ main {
     }
 }
 
-
-
-.status-online {
-    background-color: lightgreen;
-    border-radius: 50%;
-    display: inline-block;
-}
-.status-offline {
-    color: gray;
-    border-radius: 50%;
-}
-.status-dnd {
-    color: red;
-    border-radius: 50%;
-}
-
 @media (min-width: 1200px) {
     .limited-width {
         padding: 0 126px;
     }
+}
+
+.go-back-icon {
+  width: 2.4375rem;
+  height: 2.4375rem;
+  border-radius: 2.61163rem;
+  border: 0.7px solid rgba(255, 255, 255, 0.4);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  background-size: 300%;
+  transition: background-position 0.4s ease;
+}
+.go-back-icon:hover {
+  background-position: right;
 }

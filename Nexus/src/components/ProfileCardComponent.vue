@@ -82,22 +82,5 @@ const icon = ref(false);
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.1);
 }
-.go-back-icon {
-  width: 2.4375rem;
-  height: 2.4375rem;
-  border-radius: 2.61163rem;
-  border: 0.7px solid rgba(255, 255, 255, 0.4);
-  background: linear-gradient(
-    135deg,
-    rgba(0, 0, 0, 0) 0%,
-    rgba(255, 255, 255, 0.2) 50%,
-    rgba(0, 0, 0, 0) 100%
-  );
-  background-size: 300%;
-  transition: background-position 0.4s ease;
-}
-.go-back-icon:hover {
-  background-position: right;
-}
 @import '../css/index.scss';
 </style>
