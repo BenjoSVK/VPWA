@@ -253,8 +253,6 @@ function onDrawerMouseLeave() {
 }
 </script>
 <style lang="scss" scoped>
-@import '../css/index.scss';
-
 :deep(.q-scrollarea__container) {
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
