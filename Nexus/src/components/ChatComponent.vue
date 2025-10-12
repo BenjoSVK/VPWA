@@ -195,6 +195,11 @@
         />
         <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
       </div>
+
+      <div class="row items-center q-ml-lg q-mb-xs">
+        <q-spinner-dots color="primary" size="18px" class="q-mr-xs" />
+        <span class="text-grey-7 q-ml-md">Jane is typing...</span>
+      </div>
     </q-scroll-area>
 
     <!-- Input field -->
