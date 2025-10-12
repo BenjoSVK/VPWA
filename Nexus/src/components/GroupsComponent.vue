@@ -7,7 +7,8 @@
     :mini="drw.isMini"
     :content-class="drw.isMini ? 'drawer--mini' : 'drawer--full'"
     v-model="drw.isOpen"
-    bordered
+    @mouseenter="onDrawerMouseEnter"
+    @mouseleave="onDrawerMouseLeave"
   >
     <div class="justify-between column full-height">
       <div class="items-center flex q-pt-md" :class="drw.isMini ? '' : 'q-px-lg row'">
@@ -47,21 +48,6 @@
             @click="groups.setSelected(g.id)"
             class="q-px-lg"
           >
-            <!-- <Groups
-            v-for="link in linksList"
-            :key="link.name"
-            v-bind="link"
-            class="text-light q-pa-none text-weight-medium"
-          />
-            <q-item class="q-px-lg">
-          <q-item-section avatar class="items-center justify-center q-pr-md">
-            <img :src="icon" :alt="name" :width="25" :height="25" />
-          </q-item-section>
-
-          <q-item-section>
-          <q-item-label>{{ name }}</q-item-label>
-          </q-item-section>
-            </q-item> -->
             <q-item-section avatar class="items-center justify-center q-pr-md">
               <img :src="g.icon" :alt="g.name" width="25" height="25" />
             </q-item-section>
@@ -74,17 +60,18 @@
         </q-list>
       </div>
       <div>
-        <div>
-          <!-- <div
-            icon="/src/assets/settings.svg"
-            name="Settings"
-            class="text-light"
-            :class="drw.isOpen ? 'q-py-none' : ''"
-          /> -->
-          <!-- <div :class="drw.isOpen ? 'q-py-none' : ''"></div> -->
+        <div class="col flex items-center" :class="drw.isMini ? 'justify-center' : 'q-pl-lg'">
+          <button class="hamburger-icon border-rad flex" :class="drw.isMini ? '' : 'q-mr-sm'">
+            <img
+              src="/src/assets/settings.svg"
+              class="q-ma-sm user-settings"
+              style="width: 20px; fill: #d1d5dc"
+            />
+          </button>
+          <p v-if="!drw.isMini" class="text-subtitle2 text-grey-5 q-ma-none">Settings</p>
         </div>
         <div :class="drw.isMini ? 'q-py-lg' : 'q-pa-lg'">
-          <Profile />
+          <InfoCard />
         </div>
       </div>
     </div>
@@ -92,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import Profile from 'components/ProfileComponent.vue';
+import InfoCard from 'components/InfoCardComponent.vue';
 import { useDrawerStore } from 'src/stores/drawer/drawer';
 import { useGroupsStore } from '../stores/drawer/groups';
 import brandIcon from '../assets/Icon.svg';
@@ -100,6 +87,22 @@ import menuIcon from '../assets/menu.svg';
 
 const drw = useDrawerStore();
 const groups = useGroupsStore();
+
+function onDrawerMouseEnter() {
+  document.body.style.overflow = 'hidden';
+  const drawer = document.querySelector('.q-drawer');
+  if (drawer) {
+    (drawer as HTMLElement).style.overflow = 'auto';
+  }
+}
+
+function onDrawerMouseLeave() {
+  document.body.style.overflow = '';
+  const drawer = document.querySelector('.q-drawer');
+  if (drawer) {
+    (drawer as HTMLElement).style.overflow = '';
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -109,6 +112,12 @@ const groups = useGroupsStore();
 .hamburger-icon:hover {
   background-color: rgba(255, 255, 255, 0.2);
   transition: background-color 0.3s ease;
+}
+.user-settings {
+  transition: transform 0.8s ease;
+}
+.hamburger-icon:hover .user-settings {
+  transform: rotate(135deg);
 }
 
 @import '../css/index.scss';

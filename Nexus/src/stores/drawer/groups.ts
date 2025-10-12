@@ -1,12 +1,7 @@
 import { defineStore } from 'pinia';
 import FavouritesIcon from 'assets/favourites.svg';
 import GroupsIcon from 'assets/groups.svg';
-
-export interface Group {
-  id: string;
-  icon: string;
-  name: string;
-}
+import type { Group } from 'src/components/models';
 
 export const useGroupsStore = defineStore('groups', {
   state: () => ({

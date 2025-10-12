@@ -1,13 +1,18 @@
-export interface Todo {
-  id: number;
-  content: string;
+export enum UserStatus {
+  Online = 'Online',
+  Offline = 'Offline',
+  Dnd = 'Do Not Disturb',
 }
 
-export interface Meta {
-  totalCount: number;
+export interface User {
+  id: string;
+  name: string;
+  status: UserStatus;
+  icon?: string;
 }
-export enum UserState {
-  'Online',
-  'Do Not Disturb',
-  'Offline',
+
+export interface Group {
+  id: string;
+  icon: string;
+  name: string;
 }

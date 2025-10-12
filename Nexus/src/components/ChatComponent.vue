@@ -1,78 +1,271 @@
 <template>
-  <div class="q-px-md q-pt-md justify-center">
-    <div>
-      <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
-      <q-chat-message
-        name="Jane"
-        avatar="https://cdn.quasar.dev/img/avatar2.jpg"
-        :text="['doing fine, how r you?']"
-        bg-color="grey-4"
-      />
-      <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
-      <q-chat-message
-        name="Jane"
-        avatar="https://cdn.quasar.dev/img/avatar2.jpg"
-        :text="['doing fine, how r you?']"
-        bg-color="grey-4"
-      />
-      <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
-      <q-chat-message
-        name="Jane"
-        avatar="https://cdn.quasar.dev/img/avatar2.jpg"
-        :text="['doing fine, how r you?']"
-        bg-color="grey-4"
-      />
-      <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
-      <q-chat-message
-        name="Jane"
-        avatar="https://cdn.quasar.dev/img/avatar2.jpg"
-        :text="['doing fine, how r you?']"
-        bg-color="grey-4"
-      />
-      <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
-      <q-chat-message
-        name="Jane"
-        avatar="https://cdn.quasar.dev/img/avatar2.jpg"
-        :text="['doing fine, how r you?']"
-        bg-color="grey-4"
-      />
-      <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
-      <q-chat-message
-        name="Jane"
-        avatar="https://cdn.quasar.dev/img/avatar2.jpg"
-        :text="['doing fine, how r you?']"
-        bg-color="grey-4"
-      />
-      <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
-    </div>
-  </div>
-  <div class="flex q-pb-md q-pr-lg q-pl-sm items-center justify-center align-center">
-    <q-input
-      v-model="search"
-      rounded
-      outlined
-      debounce="500"
-      placeholder="Search"
-      class="q-pa-md col"
-      input-style="padding-left: 12px"
+  <q-page class="column col" style="height: calc(100dvh - 65px)">
+    <q-scroll-area class="col" :thumb-style="{ display: 'none' }" :bar-style="{ display: 'none' }">
+      <div class="q-px-md q-pt-md q-pb-lg">
+        <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        />
+        <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        />
+        <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        />
+        <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        />
+        <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        />
+        <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        />
+        <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        />
+        <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        />
+        <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        />
+        <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        /><q-chat-message
+          :text="['hey, how are you?']"
+          sent
+          bg-color="tertiary"
+          text-color="white"
+        />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        /><q-chat-message
+          :text="['hey, how are you?']"
+          sent
+          bg-color="tertiary"
+          text-color="white"
+        />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        /><q-chat-message
+          :text="['hey, how are you?']"
+          sent
+          bg-color="tertiary"
+          text-color="white"
+        />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        /><q-chat-message
+          :text="['hey, how are you?']"
+          sent
+          bg-color="tertiary"
+          text-color="white"
+        />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        /><q-chat-message
+          :text="['hey, how are you?']"
+          sent
+          bg-color="tertiary"
+          text-color="white"
+        />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        /><q-chat-message
+          :text="['hey, how are you?']"
+          sent
+          bg-color="tertiary"
+          text-color="white"
+        />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        /><q-chat-message
+          :text="['hey, how are you?']"
+          sent
+          bg-color="tertiary"
+          text-color="white"
+        />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        /><q-chat-message
+          :text="['hey, how are you?']"
+          sent
+          bg-color="tertiary"
+          text-color="white"
+        />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        /><q-chat-message
+          :text="['hey, how are you?']"
+          sent
+          bg-color="tertiary"
+          text-color="white"
+        />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        /><q-chat-message
+          :text="['hey, how are you?']"
+          sent
+          bg-color="tertiary"
+          text-color="white"
+        />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        /><q-chat-message
+          :text="['hey, how are you?']"
+          sent
+          bg-color="tertiary"
+          text-color="white"
+        />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        />
+        <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
+      </div>
+    </q-scroll-area>
+
+    <!-- Input field -->
+    <div
+      class="row items-center q-pb-md q-px-md"
+      @mouseenter="onDrawerMouseEnter"
+      @mouseleave="onDrawerMouseLeave"
     >
-      <template #append>
-        <q-btn flat class="q-pa-none">
-          <img :src="searchIcon" alt="search" />
-        </q-btn>
-      </template>
-    </q-input>
-    <q-btn class="bg-primary q-pa-md q-mx-sx" rounded>
-      <img src="/src/assets/Icon_sent.svg" style="transform: translate(-1px, 1px)" />
-    </q-btn>
-  </div>
+      <q-input
+        @mouseenter="onDrawerMouseEnter"
+        @mouseleave="onDrawerMouseLeave"
+        v-model="search"
+        rounded
+        outlined
+        debounce="500"
+        placeholder="Write a message"
+        class="q-py-md q-pl-sm q-pr-md col"
+        input-style="padding-left: 12px"
+      >
+        <template #append>
+          <q-btn flat class="q-pa-none">
+            <img :src="searchIcon" alt="search" />
+          </q-btn>
+        </template>
+      </q-input>
+      <q-btn
+        class="bg-primary q-pa-md q-mx-xs"
+        rounded
+        @mouseenter="onDrawerMouseEnter"
+        @mouseleave="onDrawerMouseLeave"
+      >
+        <img src="/src/assets/Icon_sent.svg" style="transform: translate(-1px, 1px)" />
+      </q-btn>
+    </div>
+  </q-page>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 import searchIcon from 'src/assets/EmojiIcon.svg';
 const search = ref('');
+function onDrawerMouseEnter() {
+  document.body.style.overflow = 'hidden';
+  const drawer = document.querySelector('.q-drawer');
+  if (drawer) {
+    (drawer as HTMLElement).style.overflow = 'auto';
+  }
+}
+
+function onDrawerMouseLeave() {
+  document.body.style.overflow = '';
+  const drawer = document.querySelector('.q-drawer');
+  if (drawer) {
+    (drawer as HTMLElement).style.overflow = '';
+  }
+}
 </script>
 <style lang="scss" scoped>
 @import '../css/index.scss';
+
+:deep(.q-scrollarea__container) {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+:deep(.q-scrollarea__content) {
+  overscroll-behavior: none;
+}
+
+:deep(.q-scrollarea) {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auto;
+}
 </style>

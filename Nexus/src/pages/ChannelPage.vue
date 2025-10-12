@@ -1,10 +1,7 @@
 <template>
   <c-Header />
   <c-Channels />
-  <q-page class="flex column justify-end">
-    <c-Chat />
-  </q-page>
-
+  <c-Chat />
   <c-Users />
 </template>
 <script setup lang="ts">
