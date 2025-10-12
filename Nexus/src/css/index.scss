@@ -1,6 +1,5 @@
 nav{
     border-bottom: 1px solid rgba(0, 0, 0, 0.10);
-    // background: rgba(255, 255, 255, 0.80);
     position: fixed;
     height: 65px;
     width: 100vw;
@@ -11,11 +10,18 @@ nav{
 .limited-width{
     max-width: 1600px;
     width: 100%;
-    padding: 0 126px;
+    padding: 0 14px;
 }
 
-body {
+main {
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.body-container {
     margin-top: 145px;
 }
 
@@ -76,4 +82,10 @@ body {
 .status-dnd {
     color: red;
     border-radius: 50%;
+}
+
+@media (min-width: 1200px) {
+    .limited-width {
+        padding: 0 126px;
+    }
 }
