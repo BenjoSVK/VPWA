@@ -13,6 +13,14 @@ export interface User {
 
 export interface Group {
   id: string;
-  icon: string;
   name: string;
+}
+export type Sender = 'me' | 'other';
+
+export interface Message {
+  id: string;
+  groupId: string;
+  text: string;
+  sender: Sender;
+  createdAt: number;
 }

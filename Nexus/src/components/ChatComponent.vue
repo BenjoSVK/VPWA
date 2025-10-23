@@ -1,6 +1,11 @@
 <template>
-  <q-page class="column col" style="height: calc(100dvh - 65px)">
-    <q-scroll-area class="col" :thumb-style="{ display: 'none' }" :bar-style="{ display: 'none' }">
+  <q-page v-if="selectedGroup?.name" class="column col" style="height: calc(100dvh - 65px)">
+    <q-scroll-area
+      ref="saRef"
+      class="col"
+      :thumb-style="{ display: 'none' }"
+      :bar-style="{ display: 'none' }"
+    >
       <div class="q-px-md q-pt-md q-pb-lg">
         <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
         <q-chat-message
@@ -194,6 +199,12 @@
           bg-color="grey-4"
         />
         <q-chat-message :text="['hey, how are you?']" sent bg-color="tertiary" text-color="white" />
+        <q-chat-message
+          name="Jane"
+          avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+          :text="['doing fine, how r you?']"
+          bg-color="grey-4"
+        />
       </div>
 
       <div class="row items-center q-ml-lg q-mb-xs">
@@ -204,13 +215,12 @@
 
     <!-- Input field -->
     <div
+      id="Input-field"
       class="row items-center q-pb-md q-px-md"
-      @mouseenter="onDrawerMouseEnter"
-      @mouseleave="onDrawerMouseLeave"
+      @mouseenter="onMouseEnter"
+      @mouseleave="onMouseLeave"
     >
       <q-input
-        @mouseenter="onDrawerMouseEnter"
-        @mouseleave="onDrawerMouseLeave"
         v-model="search"
         rounded
         outlined
@@ -221,16 +231,11 @@
       >
         <template #append>
           <q-btn flat class="q-pa-none">
-            <img :src="searchIcon" alt="search" />
+            <img src="src/assets/EmojiIcon.svg" alt="search" />
           </q-btn>
         </template>
       </q-input>
-      <q-btn
-        class="bg-primary q-pa-md q-mx-xs"
-        rounded
-        @mouseenter="onDrawerMouseEnter"
-        @mouseleave="onDrawerMouseLeave"
-      >
+      <q-btn class="bg-primary q-pa-md q-mx-xs" rounded>
         <img src="/src/assets/Icon_sent.svg" style="transform: translate(-1px, 1px)" />
       </q-btn>
     </div>
@@ -238,25 +243,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import searchIcon from 'src/assets/EmojiIcon.svg';
+import { useScrollHandling, useAutoScroll } from '../composables/useScrollHandling';
+import { useGroupsStore } from 'src/stores/drawer/groups';
+// import { useChatStore } from 'src/stores/chat/chat';
+import { computed, ref } from 'vue';
+import { storeToRefs } from 'pinia';
 const search = ref('');
-function onDrawerMouseEnter() {
-  document.body.style.overflow = 'hidden';
-  const drawer = document.querySelector('.q-drawer');
-  if (drawer) {
-    (drawer as HTMLElement).style.overflow = 'auto';
-  }
-}
 
-function onDrawerMouseLeave() {
-  document.body.style.overflow = '';
-  const drawer = document.querySelector('.q-drawer');
-  if (drawer) {
-    (drawer as HTMLElement).style.overflow = '';
-  }
-}
+const groups = useGroupsStore();
+const { selectedId } = storeToRefs(groups);
+const selectedGroup = computed(() => groups.selected);
+
+const { saRef } = useAutoScroll(selectedId);
+
+const { onMouseEnter, onMouseLeave } = useScrollHandling('#Input-field');
+
+// const chat = useChatStore();
+// const messages = computed(() => chat.messagesForSelected);
+
+// function onSend() {
+//   chat.addMessage();
+//   scrollToBottom();
+// }
 </script>
+
 <style lang="scss" scoped>
 :deep(.q-scrollarea__container) {
   overscroll-behavior: none;

@@ -5,8 +5,9 @@
     show-if-above
     :width="320"
     :breakpoint="1023"
-    @mouseenter="onDrawerMouseEnter"
-    @mouseleave="onDrawerMouseLeave"
+    @mouseenter="onMouseEnter"
+    @mouseleave="onMouseLeave"
+    v-if="selectedGroup?.name"
   >
     <div class="q-pa-md users-online">
       <p class="text-weight-medium text-subtitle1 q-ma-none">Používatelia</p>
@@ -43,30 +44,23 @@
 import { onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useUsersStore } from 'src/stores/drawer/users';
+import { useGroupsStore } from 'src/stores/drawer/groups';
+import { computed } from 'vue';
+import { useScrollHandling } from '../composables/useScrollHandling';
 
 const Users = useUsersStore();
 const { sorted, onlineCount } = storeToRefs(Users);
 
-function onDrawerMouseEnter() {
-  document.body.style.overflow = 'hidden';
-  const drawer = document.querySelector('.q-drawer');
-  if (drawer) {
-    (drawer as HTMLElement).style.overflow = 'auto';
-  }
-}
-
-function onDrawerMouseLeave() {
-  document.body.style.overflow = '';
-  const drawer = document.querySelector('.q-drawer');
-  if (drawer) {
-    (drawer as HTMLElement).style.overflow = '';
-  }
-}
+const { onMouseEnter, onMouseLeave } = useScrollHandling('.q-drawer');
 
 onMounted(async () => {
   await Users.loadMock(); // For BE fetchFromApi() or smth like that
   window.addEventListener('focus', () => void Users.reloadUsers());
 });
+
+const groups = useGroupsStore();
+
+const selectedGroup = computed(() => groups.selected);
 </script>
 
 <style lang="scss" scoped>
