@@ -7,8 +7,8 @@
     :mini="drw.isMini"
     :content-class="drw.isMini ? 'drawer--mini' : 'drawer--full'"
     v-model="drw.isOpen"
-    @mouseenter="onDrawerMouseEnter"
-    @mouseleave="onDrawerMouseLeave"
+    @mouseenter="onMouseEnter"
+    @mouseleave="onMouseLeave"
   >
     <div class="justify-between column full-height">
       <div class="items-center flex q-pt-md" :class="drw.isMini ? '' : 'q-px-lg row'">
@@ -41,22 +41,38 @@
 
       <div class="col q-pt-md">
         <q-list padding>
-          <q-item
-            v-for="g in groups.groups"
-            :key="g.id"
-            :active="groups.selectedId === g.id"
-            @click="groups.setSelected(g.id)"
-            class="q-px-lg"
-          >
-            <q-item-section avatar class="items-center justify-center q-pr-md">
-              <img :src="g.icon" :alt="g.name" width="25" height="25" />
+          <q-item dense class="bg-transparent text-h6 text-white q-px-lg q-pb-md">
+            <q-item-section avatar class="items-center justify-center q-pr-sm">
+              <img src="/src/assets/groups.svg" width="25" height="25" />
             </q-item-section>
-            <q-item-section v-show="!drw.isMini">
-              <q-item-label class="text-light text-weight-medium">
-                {{ g.name ?? 'Unknown' }}
-              </q-item-label>
+            <q-item-section>
+              <q-item-label class="text-weight-medium">Skupiny</q-item-label>
             </q-item-section>
           </q-item>
+
+          <div class="column">
+            <q-btn
+              v-for="g in groups.groups"
+              @click="groups.setSelected(g.id)"
+              align="left"
+              :key="g.id"
+              flat
+              :active="groups.selectedId === g.id"
+              class="q-my-xs border-rad"
+              size="md"
+              :class="[
+                drw.isMini ? 'q-mx-md flex items-center' : 'q-mx-lg',
+                groups.selectedId === g.id ? 'active-group' : 'inactive-group',
+              ]"
+            >
+              <span v-if="!drw.isMini" class="text-weight-medium q-pl-sm">
+                {{ g.name ?? 'Unknown' }}
+              </span>
+              <span v-else class="text-weight-medium">
+                {{ g.name?.[0] ?? '•' }}
+              </span>
+            </q-btn>
+          </div>
         </q-list>
       </div>
       <div>
@@ -82,27 +98,14 @@
 import InfoCard from 'components/InfoCardComponent.vue';
 import { useDrawerStore } from 'src/stores/drawer/drawer';
 import { useGroupsStore } from '../stores/drawer/groups';
+import { useScrollHandling } from '../composables/useScrollHandling';
 import brandIcon from '../assets/Icon.svg';
 import menuIcon from '../assets/menu.svg';
 
 const drw = useDrawerStore();
 const groups = useGroupsStore();
 
-function onDrawerMouseEnter() {
-  document.body.style.overflow = 'hidden';
-  const drawer = document.querySelector('.q-drawer');
-  if (drawer) {
-    (drawer as HTMLElement).style.overflow = 'auto';
-  }
-}
-
-function onDrawerMouseLeave() {
-  document.body.style.overflow = '';
-  const drawer = document.querySelector('.q-drawer');
-  if (drawer) {
-    (drawer as HTMLElement).style.overflow = '';
-  }
-}
+const { onMouseEnter, onMouseLeave } = useScrollHandling('.q-drawer');
 </script>
 
 <style lang="scss" scoped>
@@ -118,5 +121,20 @@ function onDrawerMouseLeave() {
 }
 .hamburger-icon:hover .user-settings {
   transform: rotate(135deg);
+}
+.active-group {
+  background-color: rgba(111, 178, 255, 0.399);
+  color: rgba(255, 255, 255, 0.95);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.inactive-group {
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 </style>
