@@ -1,11 +1,11 @@
 <template>
   <q-drawer
-    show-if-above
     class="bg-gradient-primary"
     :mini-width="80"
     :width="370"
     :mini="drw.isMini"
     :content-class="drw.isMini ? 'drawer--mini' : 'drawer--full'"
+    :breakpoint="0"
     v-model="drw.isOpen"
     @mouseenter="onMouseEnter"
     @mouseleave="onMouseLeave"

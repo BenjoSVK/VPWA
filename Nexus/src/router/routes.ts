@@ -7,8 +7,6 @@ const routes: RouteRecordRaw[] = [
     component: () => import('layouts/MainLayout.vue'),
     children: [{ path: '', name: 'indexPage', component: () => import('pages/IndexPage.vue') }],
   },
-  //TODO login page, register page, etc.
-  // Auth (pripravene do budúcna)
   {
     path: '/auth',
     component: () => import('layouts/AuthLayout.vue'),

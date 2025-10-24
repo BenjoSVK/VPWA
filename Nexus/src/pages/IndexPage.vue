@@ -270,7 +270,7 @@ function handleDocumentation() {
 }
 
 async function handleNexus() {
-  await router.push('/chat');
+  await router.push('/auth');
 }
 </script>
 
