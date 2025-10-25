@@ -96,7 +96,15 @@
 
       <!-- Logout -->
       <div class="flex justify-center items-center q-pa-lg">
-        <q-btn rounded class="bg-red-14 text-white col q-py-md" size="md"> Odhlasit sa</q-btn>
+        <q-btn
+          rounded
+          class="bg-red-14 col q-py-md"
+          style="cursor: pointer"
+          size="md"
+          @click="handleLogout"
+        >
+          <p class="text-subtitle2 q-ma-none text-white">Odhlasit sa</p>
+        </q-btn>
       </div>
     </q-card>
   </q-page>
@@ -117,7 +125,9 @@ function goBack() {
     // Ak nie, choď na default route
   }
 }
-
+async function handleLogout() {
+  await router.push('/login');
+}
 const userStatus = useUserStatusStore();
 const notificationStatus = useNotificationStatusStore();
 const { currentStatus, statusText } = storeToRefs(userStatus);
@@ -146,7 +156,7 @@ function setStatus(status: UserStatus) {
 }
 .profile-card {
   width: 25dvw;
-  height: 65dvh;
+  height: 70dvh;
   border-radius: 1.5rem;
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.1);
