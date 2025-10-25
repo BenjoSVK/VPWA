@@ -131,7 +131,7 @@ const delayedNotificationText = ref(notificationStatusText.value);
 watch(notificationStatusText, (newValue) => {
   setTimeout(() => {
     delayedNotificationText.value = newValue;
-  }, 10);
+  }, 100);
 });
 
 function setStatus(status: UserStatus) {

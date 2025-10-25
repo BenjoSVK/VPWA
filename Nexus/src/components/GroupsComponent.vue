@@ -24,7 +24,7 @@
           <img :src="brandIcon" alt="Icon" />
         </div>
         <div
-          class="col row items-center align-center content-section"
+          class="col row items-center align-center easy-out"
           :class="drw.isMini ? 'justify-center' : 'justify-between'"
         >
           <q-item-label
@@ -49,8 +49,8 @@
         style="flex: 1; display: flex; flex-direction: column; min-height: 0"
       >
         <q-list padding>
-          <q-item dense class="bg-transparent text-h6 text-white q-px-lg q-pb-md groups-header">
-            <q-item-section avatar class="items-center justify-center q-pr-sm groups-icon">
+          <q-item dense class="bg-transparent text-h6 text-white q-px-lg q-pb-md easy-out">
+            <q-item-section avatar class="items-center justify-center q-pr-sm easy-out">
               <img src="/src/assets/groups.svg" width="25" height="25" />
             </q-item-section>
             <q-item-section>
@@ -61,7 +61,7 @@
                 rounded
                 flat
                 color="grey"
-                class="flex items-center justify-center q-pa-xs groups-add-btn"
+                class="flex items-center justify-center q-pa-xs easy-out"
                 @click.stop="dialog = true"
                 size="sm"
                 ><q-icon name="img:src/assets/plus.svg" size="20px" />
@@ -179,12 +179,9 @@
                     </q-card-section>
 
                     <!-- Výber používateľov -->
-                    <q-card-section class="q-py-none">
-                      <p class="text-weight-medium text-subtitle1 q-pa-none q-ma-none">
+                    <q-card-section class="q-py-sm">
+                      <p class="text-weight-medium text-subtitle1 q-pa-none q-mt-sm q-mb-none">
                         Vybrať používateľov
-                      </p>
-                      <p class="text-caption text-grey-6 q-pa-none q-ma-none">
-                        Minimálne 2 používatelia ({{ selectedUsers.length }}/2+)
                       </p>
                       <div class="q-mt-sm">
                         <q-list dense>
@@ -363,23 +360,7 @@ const { onMouseEnter, onMouseLeave } = useScrollHandling('.q-drawer');
     transform 0.5s ease-out;
 }
 
-.content-section {
-  transition: all 0.5s ease-out;
-}
-
-.groups-header {
-  transition: all 0.5s ease-out;
-}
-
-.groups-icon {
-  transition: all 0.5s ease-out;
-}
-
-.groups-label {
-  transition: all 0.5s ease-out;
-}
-
-.groups-add-btn {
+.easy-out {
   transition: all 0.5s ease-out;
 }
 </style>

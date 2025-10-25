@@ -39,7 +39,12 @@ export const useUsersStore = defineStore('users', {
           { id: 'u4', name: 'Tomáš Novák', status: UserStatus.Offline, icon: defaultIcon },
           { id: 'u5', name: 'Jana Dvořáková', status: UserStatus.Online, icon: defaultIcon },
           { id: 'u6', name: 'Martin Černý', status: UserStatus.Dnd, icon: defaultIcon },
-          { id: 'u7', name: 'Eva Procházková', status: UserStatus.Online, icon: defaultIcon },
+          {
+            id: 'u7',
+            name: 'Eva Procházková - Admin',
+            status: UserStatus.Online,
+            icon: defaultIcon,
+          },
           { id: 'u8', name: 'David Novotný', status: UserStatus.Offline, icon: defaultIcon },
         ];
         this.error = null;
