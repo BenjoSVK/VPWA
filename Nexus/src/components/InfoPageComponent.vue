@@ -40,22 +40,13 @@
     </div>
 
     <div class="q-mt-lg">
-      <div class="text-center q-mb-lg">
-        <q-btn 
-          color="secondary" 
-          label="Show Notification Demo" 
-          @click="showNotificationDemo"
-          class="q-px-lg q-py-sm"
-        />
-      </div>
-      
       <h3 class="text-h6 text-weight-bold text-center q-mb-md">Try a command:</h3>
       <div class="row items-center q-pb-md q-px-md">
         <q-input
           v-model="commandInput"
           rounded
           outlined
-          placeholder="Type a command (e.g., /help, /status, /join #general)"
+          placeholder="Type a command (e.g., /help, /status, /join <groupname> [private])"
           class="q-py-md q-pl-sm q-pr-md col"
           input-style="padding-left: 12px"
           @keyup.enter="executeCommand"
@@ -75,9 +66,6 @@
           <img src="/src/assets/Icon_sent.svg" style="transform: translate(-1px, 1px)" />
         </q-btn>
       </div>
-      <div v-if="commandOutput" class="bg-grey-9 text-white q-pa-md rounded-borders">
-        <div class="text-body2 font-mono">{{ commandOutput }}</div>
-      </div>
     </div>
   </div>
 </template>
@@ -85,10 +73,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useQuasar } from 'quasar';
+import { useGroupsStore } from 'src/stores/drawer/groups';
+import { useRouter } from 'vue-router';
 
 const $q = useQuasar();
+const groups = useGroupsStore();
+const router = useRouter();
 const commandInput = ref('');
-const commandOutput = ref('');
 
 const generalCommands = ref([
   {
@@ -100,7 +91,7 @@ const generalCommands = ref([
     description: 'Show your current status (online/offline/DND)'
   },
   {
-    command: '/join channelName [private]',
+    command: '/join <groupname> [private]',
     description: 'Join or create a channel (add \'private\' for private channel)'
   }
 ]);
@@ -140,36 +131,60 @@ function executeCommand() {
   if (!commandInput.value.trim()) return;
 
   const command = commandInput.value.toLowerCase().trim();
+  let message = '';
   
-  switch (command) {
-    case '/help':
-      commandOutput.value = 'Available commands: /help, /join #channel, /leave, /users, /status, /clear';
-      break;
-    case '/join #general':
-      commandOutput.value = 'Joining #general channel...';
-      break;
+  if (command.startsWith('/join ')) {
+    let groupName = command.substring(6).trim(); // Remove '/join ' prefix
+    let isPrivate = false;
+    
+    // Check if the last word is "private" and remove it
+    if (groupName.endsWith(' private')) {
+      groupName = groupName.slice(0, -8); // Remove " private" (8 characters)
+      isPrivate = true;
+    }
+    
+    if (groupName) {
+      const existingGroup = groups.groups?.find(g => g.name === groupName);
+      if (!existingGroup) {
+
+        groups.addGroup(groupName, isPrivate);
+        const channelType = isPrivate ? 'private' : 'public';
+        message = `Created and joined ${groupName} ${channelType} channel!`;
+      } else {
+        groups.setSelected(existingGroup.id);
+        message = `Joined ${groupName} channel!`;
+      }
+      router.push('/chat').catch(() => {
+        console.error('Failed to navigate to chat');
+      });
+    } else {
+      message = 'Please specify a group name. Usage: /join <groupname> [private]';
+    }
+  } else {
+    switch (command) {
+      case '/help':
+        message = 'Available commands: /help, /join <groupname> [private], /leave, /users, /status, /clear';
+        break;
     case '/leave':
-      commandOutput.value = 'You have left the current channel.';
+      groups.setSelected('');
+      message = 'You have left the current channel.';
       break;
     case '/users':
-      commandOutput.value = 'Online users: John, Jane, Mike, Sarah (4 users online)';
+      message = 'You need to be in a channel to see users. Use /join <groupname> to join a channel first.';
       break;
     case '/status':
-      commandOutput.value = 'Status: Online | Last seen: Now';
+      message = 'Status: Online | Last seen: Now';
       break;
     case '/clear':
-      commandOutput.value = 'Chat history cleared.';
+      message = 'You need to be in a channel to clear history. Use /join <groupname> to join a channel first.';
       break;
     default:
-      commandOutput.value = `Unknown command: ${commandInput.value}. Type /help for available commands.`;
+      message = `Unknown command: ${commandInput.value}. Type /help for available commands.`;
+    }
   }
   
-  commandInput.value = '';
-}
-
-function showNotificationDemo() {
   $q.notify({
-    message: 'This is a notification demo! 🎉',
+    message: message,
     position: 'top',
     timeout: 4000,
     color: 'primary',
@@ -184,6 +199,8 @@ function showNotificationDemo() {
       }
     ]
   });
+  
+  commandInput.value = '';
 }
 </script>
 

@@ -225,7 +225,7 @@ import { useScrollHandling } from '../composables/useScrollHandling';
 import { useRouter } from 'vue-router';
 import brandIcon from '../assets/Icon.svg';
 import menuIcon from '../assets/menu.svg';
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 
 const drw = useDrawerStore();
 const groups = useGroupsStore();
@@ -252,6 +252,25 @@ function goToInfoPage() {
     console.error('Failed to navigate to chat');
   });
 }
+
+// Handle click outside drawer to minimize it
+function handleClickOutside(event: Event) {
+  const target = event.target as HTMLElement;
+  const drawer = document.querySelector('.q-drawer');
+  
+  // Check if click is outside the drawer and drawer is open and not mini
+  if (drawer && !drawer.contains(target) && drw.isOpen && !drw.isMini) {
+    drw.toggleMini();
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
 
 const { onMouseEnter, onMouseLeave } = useScrollHandling('.q-drawer');
 </script>
