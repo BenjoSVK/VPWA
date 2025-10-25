@@ -9,7 +9,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/auth',
-    component: () => import('layouts/AuthLayout.vue'),
+    component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: '', redirect: '/auth/login' },
       {
@@ -44,7 +44,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/profile',
-    component: () => import('layouts/ProfileLayout.vue'),
+    component: () => import('layouts/MainLayout.vue'),
     children: [{ path: '', name: 'profile', component: () => import('pages/ProfilePage.vue') }],
   },
   // Always leave this as last one,

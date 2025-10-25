@@ -7,7 +7,7 @@
       :key="g.id"
       flat
       :active="groups.selectedId === g.id"
-      class="q-my-xs border-rad"
+      class="q-my-xs border-rad group-item"
       size="md"
       :class="[
         drw.isMini ? 'q-mx-md flex items-center' : 'q-mx-lg',
@@ -15,8 +15,8 @@
       ]"
     >
       <template #default>
-        <div class="row items-center full-width">
-          <q-icon v-if="g.private === true && !drw.isMini" size="18px" class="q-mr-sm">
+        <div class="row items-center full-width group-content">
+          <q-icon v-if="g.private === true && !drw.isMini" size="18px" class="q-mr-sm group-icon">
             <img src="../assets/Lock.svg" alt="group icon" />
             <!-- optional style for private group icon -->
             <!-- style="
@@ -24,20 +24,24 @@
                   hue-rotate(346deg) brightness(118%) contrast(119%);
               " -->
           </q-icon>
-          <q-icon v-else-if="!drw.isMini" size="18px" class="q-mr-sm">
-            <img src="../assets/public.svg" alt="group icon" />
+          <q-icon v-else-if="!drw.isMini" size="18px" class="q-mr-sm group-icon">
+            <img
+              src="../assets/public.svg"
+              alt="group icon"
+              style="filter: brightness(0) invert(1)"
+            />
           </q-icon>
-          <span v-if="!drw.isMini" class="text-weight-medium">
+          <span v-if="!drw.isMini" class="text-weight-medium group-name">
             {{ g.name ?? 'Unknown' }}
           </span>
-          <span v-else class="text-weight-medium">
+          <span v-else class="text-weight-medium group-name-mini">
             {{ g.name?.[0] ?? '•' }}
           </span>
           <q-icon
-            v-if="groups.selectedId === g.id"
+            v-if="groups.selectedId === g.id && !drw.isMini"
             name="img:src/assets/close.svg"
             size="18px"
-            class="q-ml-auto"
+            class="q-ml-auto close-icon"
             @click.stop="groups.removeGroup(g.id)"
             style="filter: brightness(0) invert(1) opacity(0.5)"
           />
@@ -63,6 +67,38 @@ const drw = useDrawerStore();
 const groups = useGroupsStore();
 </script>
 <style lang="scss" scoped>
+.group-item {
+  transition: all 0.5s ease-out;
+}
+
+.group-content {
+  transition: all 0.5s ease-out;
+}
+
+.group-icon {
+  transition:
+    opacity 0.5s ease-out,
+    transform 0.5s ease-out;
+}
+
+.group-name {
+  transition:
+    opacity 0.5s ease-out,
+    transform 0.5s ease-out;
+}
+
+.group-name-mini {
+  transition:
+    opacity 0.5s ease-out,
+    transform 0.5s ease-out;
+}
+
+.close-icon {
+  transition:
+    opacity 0.5s ease-out,
+    transform 0.5s ease-out;
+}
+
 .active-group {
   background-color: rgba(111, 178, 255, 0.399);
   color: rgba(255, 255, 255, 0.95);

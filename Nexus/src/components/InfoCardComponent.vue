@@ -32,14 +32,27 @@
           <p class="q-ma-none text-weight-medium text-subtitle2">User Name</p>
         </div>
         <div class="text-grey">
-          <p class="q-ma-none text-weight-regular text-body2">Online</p>
+          <p class="q-ma-none text-weight-regular text-body2">{{ userStatus.statusText }}</p>
         </div>
       </div>
       <div
         v-show="!drw.isMini"
         class="justify-center align-center items-center flex cursor-pointer q-ma-sm"
       >
-        <img src="/src/assets/notification.svg" name="Settings" class="text-light" />
+        <img
+          v-if="notificationsEnabled"
+          src="/src/assets/notification.svg"
+          name="Settings"
+          class="text-light"
+          @click.stop="notificationStatus.disableNotifications()"
+        />
+        <img
+          v-else
+          src="/src/assets/notificationDisabled.svg"
+          name="Settings"
+          class="text-light"
+          @click.stop="notificationStatus.enableNotifications()"
+        />
       </div>
     </div>
   </div>
@@ -49,7 +62,12 @@
 import UserAvatar from 'src/assets/UserDefault.svg';
 import { useDrawerStore } from 'src/stores/drawer/drawer';
 import { useRouter } from 'vue-router';
-
+import { useUserStatusStore } from 'src/stores/user/userStatus';
+import { storeToRefs } from 'pinia';
+import { useNotificationStatusStore } from 'src/stores/user/notificationStatus';
+const userStatus = useUserStatusStore();
+const notificationStatus = useNotificationStatusStore();
+const { notificationsEnabled } = storeToRefs(notificationStatus);
 const router = useRouter();
 const drw = useDrawerStore();
 

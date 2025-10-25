@@ -6,38 +6,38 @@
     :mini="drw.isMini"
     :content-class="drw.isMini ? 'drawer--mini' : 'drawer--full'"
     :breakpoint="0"
-    :overlay="!drw.isMini"
     v-model="drw.isOpen"
     @mouseenter="onMouseEnter"
     @mouseleave="onMouseLeave"
   >
     <div class="justify-between column full-height" style="height: 100dvh">
-      <div 
-        class="items-center flex q-pt-md cursor-pointer" 
+      <div
+        class="items-center flex q-pt-md header-section"
         :class="drw.isMini ? '' : 'q-px-lg row'"
         @click="goToInfoPage"
+        style="cursor: pointer"
       >
         <div
-          class="items-center justify-center bg-gradient-secondary row q-pa-sm border-rad"
+          class="items-center justify-center bg-gradient-secondary row q-pa-sm border-rad brand-icon"
           v-show="!drw.isMini"
         >
           <img :src="brandIcon" alt="Icon" />
         </div>
         <div
-          class="col row items-center align-center"
+          class="col row items-center align-center content-section"
           :class="drw.isMini ? 'justify-center' : 'justify-between'"
         >
           <q-item-label
             v-show="!drw.isMini"
             header
             class="text-h6 text-light q-pl-md text-weight-bold"
+            >Nexus</q-item-label
           >
-            Nexus
-          </q-item-label>
           <button
-            class="hamburger-icon border-rad flex q-pa-xs"
+            class="border-rad flex q-pa-xs"
             @click.stop="drw.toggleMini"
             aria-label="Menu"
+            style="background-color: rgba(255, 255, 255, 0.1); cursor: pointer"
           >
             <img :src="menuIcon" alt="menu-icon" class="q-pa-sm" />
           </button>
@@ -49,24 +49,25 @@
         style="flex: 1; display: flex; flex-direction: column; min-height: 0"
       >
         <q-list padding>
-          <q-item dense class="bg-transparent text-h6 text-white q-px-lg q-pb-md">
-            <q-item-section avatar class="items-center justify-center q-pr-sm">
+          <q-item dense class="bg-transparent text-h6 text-white q-px-lg q-pb-md groups-header">
+            <q-item-section avatar class="items-center justify-center q-pr-sm groups-icon">
               <img src="/src/assets/groups.svg" width="25" height="25" />
             </q-item-section>
             <q-item-section>
-              <q-item-label class="text-weight-medium">Skupiny</q-item-label>
+              <q-item-label class="text-weight-medium groups-label">Skupiny</q-item-label>
             </q-item-section>
             <q-item-section side>
               <q-btn
                 rounded
                 flat
                 color="grey"
-                class="flex items-center justify-center q-pa-xs"
-                @click="dialog = true"
+                class="flex items-center justify-center q-pa-xs groups-add-btn"
+                @click.stop="dialog = true"
                 size="sm"
                 ><q-icon name="img:src/assets/plus.svg" size="20px" />
+
                 <q-dialog v-model="dialog" :backdrop-filter="'blur(3px) saturate(150%)'">
-                  <q-card style="border-radius: 20px">
+                  <q-card style="border-radius: 20px" @click.stop>
                     <q-card-section class="column text-h6 bg-gradient-secondary q-pb-sm text-light">
                       <div class="row items-center">
                         <q-icon name="img:../src/assets/star.svg" size="40px" class="q-mr-sm" />
@@ -123,7 +124,7 @@
                           :flat="clickedCard !== 'public'"
                           class="border-rad cursor-pointer"
                           :class="clickedCard === 'public' ? ' border-blue-500' : 'bg-white'"
-                          @click="clickedCard = 'public'"
+                          @click.stop="clickedCard = 'public'"
                         >
                           <q-card-section class="column">
                             <div class="row justify-between">
@@ -152,7 +153,7 @@
                           :flat="clickedCard !== 'private'"
                           class="border-rad cursor-pointer"
                           :class="clickedCard === 'private' ? 'border-orange-500 bg-orange-1' : ''"
-                          @click="clickedCard = 'private'"
+                          @click.stop="clickedCard = 'private'"
                         >
                           <q-card-section class="column">
                             <div class="row justify-between">
@@ -176,6 +177,51 @@
                         </q-card>
                       </div>
                     </q-card-section>
+
+                    <!-- Výber používateľov -->
+                    <q-card-section class="q-py-none">
+                      <p class="text-weight-medium text-subtitle1 q-pa-none q-ma-none">
+                        Vybrať používateľov
+                      </p>
+                      <p class="text-caption text-grey-6 q-pa-none q-ma-none">
+                        Minimálne 2 používatelia ({{ selectedUsers.length }}/2+)
+                      </p>
+                      <div class="q-mt-sm">
+                        <q-list dense>
+                          <q-item
+                            v-for="user in availableUsers"
+                            :key="user.id"
+                            clickable
+                            v-ripple
+                            @click="toggleUserSelection(user.id)"
+                            :class="selectedUsers.includes(user.id) ? 'bg-blue-1' : ''"
+                            class="border-rad q-mb-xs"
+                          >
+                            <q-item-section side>
+                              <q-checkbox
+                                v-model="selectedUsers"
+                                :val="user.id"
+                                color="primary"
+                                @click.stop
+                              />
+                            </q-item-section>
+                            <q-item-section avatar>
+                              <q-avatar size="32px">
+                                <img
+                                  :src="user.icon || '/src/assets/UserDefault.svg'"
+                                  :alt="user.name"
+                                />
+                              </q-avatar>
+                            </q-item-section>
+                            <q-item-section>
+                              <q-item-label>{{ user.name }}</q-item-label>
+                              <q-item-label caption>{{ user.status }}</q-item-label>
+                            </q-item-section>
+                          </q-item>
+                        </q-list>
+                      </div>
+                    </q-card-section>
+
                     <div class="row items-center justify-between q-pa-sm">
                       <q-card-actions align="left">
                         <q-btn
@@ -192,7 +238,7 @@
                           label="Vytvoriť skupinu"
                           color="tertiary"
                           class="border-rad"
-                          :disable="!groupName.trim() || !clickedCard"
+                          :disable="!groupName.trim() || !clickedCard || selectedUsers.length < 2"
                           @click="createGroup"
                         ></q-btn>
                       </q-card-actions>
@@ -221,19 +267,25 @@ import InfoAndSettings from 'components/InfoCardComponent.vue';
 import GroupList from 'src/components/GroupListComponent.vue';
 import { useDrawerStore } from 'src/stores/drawer/drawer';
 import { useGroupsStore } from 'src/stores/drawer/groups';
+import { useUsersStore } from 'src/stores/drawer/users';
 import { useScrollHandling } from '../composables/useScrollHandling';
 import { useRouter } from 'vue-router';
 import brandIcon from '../assets/Icon.svg';
 import menuIcon from '../assets/menu.svg';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 
 const drw = useDrawerStore();
 const groups = useGroupsStore();
+const users = useUsersStore();
 const router = useRouter();
 
 const dialog = ref(false);
 const groupName = ref('');
 const clickedCard = ref('');
+const selectedUsers = ref<string[]>([]);
+
+// Computed pre dostupných používateľov
+const availableUsers = computed(() => users.sorted);
 const createGroup = () => {
   if (groupName.value.trim() && clickedCard.value) {
     const isPrivate = clickedCard.value === 'private';
@@ -242,7 +294,17 @@ const createGroup = () => {
     // Reset form
     groupName.value = '';
     clickedCard.value = '';
+    selectedUsers.value = [];
     dialog.value = false;
+  }
+};
+
+const toggleUserSelection = (userId: string) => {
+  const index = selectedUsers.value.indexOf(userId);
+  if (index > -1) {
+    selectedUsers.value.splice(index, 1);
+  } else {
+    selectedUsers.value.push(userId);
   }
 };
 
@@ -257,7 +319,7 @@ function goToInfoPage() {
 function handleClickOutside(event: Event) {
   const target = event.target as HTMLElement;
   const drawer = document.querySelector('.q-drawer');
-  
+
   // Check if click is outside the drawer and drawer is open and not mini
   if (drawer && !drawer.contains(target) && drw.isOpen && !drw.isMini) {
     drw.toggleMini();
@@ -289,5 +351,35 @@ const { onMouseEnter, onMouseLeave } = useScrollHandling('.q-drawer');
 .border-grey-300 {
   border-color: #d1d5db !important;
   border-width: 1px !important;
+}
+
+.header-section {
+  transition: all 0.5s ease-out;
+}
+
+.brand-icon {
+  transition:
+    opacity 0.5s ease-out,
+    transform 0.5s ease-out;
+}
+
+.content-section {
+  transition: all 0.5s ease-out;
+}
+
+.groups-header {
+  transition: all 0.5s ease-out;
+}
+
+.groups-icon {
+  transition: all 0.5s ease-out;
+}
+
+.groups-label {
+  transition: all 0.5s ease-out;
+}
+
+.groups-add-btn {
+  transition: all 0.5s ease-out;
 }
 </style>

@@ -62,6 +62,7 @@
         input-style="padding-left: 12px"
         @keyup.enter="sendMessage"
         :color="search.startsWith('/') ? 'primary' : undefined"
+        @click.stop
       >
         <template #append>
           <q-btn flat class="q-pa-none">
