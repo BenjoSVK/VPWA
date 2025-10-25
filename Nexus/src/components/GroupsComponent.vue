@@ -1,17 +1,22 @@
 <template>
   <q-drawer
-    show-if-above
     class="bg-gradient-primary"
     :mini-width="80"
     :width="370"
     :mini="drw.isMini"
     :content-class="drw.isMini ? 'drawer--mini' : 'drawer--full'"
+    :breakpoint="0"
+    :overlay="!drw.isMini"
     v-model="drw.isOpen"
     @mouseenter="onMouseEnter"
     @mouseleave="onMouseLeave"
   >
     <div class="justify-between column full-height" style="height: 100dvh">
-      <div class="items-center flex q-pt-md" :class="drw.isMini ? '' : 'q-px-lg row'">
+      <div 
+        class="items-center flex q-pt-md cursor-pointer" 
+        :class="drw.isMini ? '' : 'q-px-lg row'"
+        @click="goToInfoPage"
+      >
         <div
           class="items-center justify-center bg-gradient-secondary row q-pa-sm border-rad"
           v-show="!drw.isMini"
@@ -31,7 +36,7 @@
           </q-item-label>
           <button
             class="hamburger-icon border-rad flex q-pa-xs"
-            @click="drw.toggleMini"
+            @click.stop="drw.toggleMini"
             aria-label="Menu"
           >
             <img :src="menuIcon" alt="menu-icon" class="q-pa-sm" />
@@ -217,12 +222,14 @@ import GroupList from 'src/components/GroupListComponent.vue';
 import { useDrawerStore } from 'src/stores/drawer/drawer';
 import { useGroupsStore } from 'src/stores/drawer/groups';
 import { useScrollHandling } from '../composables/useScrollHandling';
+import { useRouter } from 'vue-router';
 import brandIcon from '../assets/Icon.svg';
 import menuIcon from '../assets/menu.svg';
 import { ref } from 'vue';
 
 const drw = useDrawerStore();
 const groups = useGroupsStore();
+const router = useRouter();
 
 const dialog = ref(false);
 const groupName = ref('');
@@ -238,6 +245,14 @@ const createGroup = () => {
     dialog.value = false;
   }
 };
+
+function goToInfoPage() {
+  groups.setSelected('');
+  router.push('/chat').catch(() => {
+    console.error('Failed to navigate to chat');
+  });
+}
+
 const { onMouseEnter, onMouseLeave } = useScrollHandling('.q-drawer');
 </script>
 
