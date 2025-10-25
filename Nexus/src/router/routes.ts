@@ -7,30 +7,6 @@ const routes: RouteRecordRaw[] = [
     component: () => import('layouts/MainLayout.vue'),
     children: [{ path: '', name: 'indexPage', component: () => import('pages/IndexPage.vue') }],
   },
-  //TODO login page, register page, etc.
-  // Auth (pripravene do budúcna)
-  {
-    path: '/auth',
-    component: () => import('layouts/AuthLayout.vue'),
-    children: [
-      { path: '', redirect: '/auth/login' },
-      {
-        path: 'login',
-        name: 'auth.login',
-        component: () => import('pages/AuthPage.vue'),
-        props: { tab: 'login' },
-      },
-      {
-        path: 'register',
-        name: 'auth.register',
-        component: () => import('pages/AuthPage.vue'),
-        props: { tab: 'register' },
-      },
-    ],
-  },
-  // priateľské aliasy:
-  { path: '/login', redirect: '/auth/login' },
-  { path: '/register', redirect: '/auth/register' },
   {
     path: '/chat',
     component: () => import('layouts/ChannelLayout.vue'),

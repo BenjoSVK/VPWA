@@ -14,6 +14,7 @@ export interface User {
 export interface Group {
   id: string;
   name: string;
+  private: boolean;
 }
 export type Sender = 'me' | 'other';
 
@@ -21,6 +22,8 @@ export interface Message {
   id: string;
   groupId: string;
   text: string;
-  sender: Sender;
+  sent: boolean;
   createdAt: number;
+  name?: string | undefined;
+  avatar?: string | undefined;
 }

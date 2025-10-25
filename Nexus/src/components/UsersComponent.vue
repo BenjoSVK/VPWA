@@ -7,9 +7,9 @@
     :breakpoint="1023"
     @mouseenter="onMouseEnter"
     @mouseleave="onMouseLeave"
-    v-if="selectedGroup?.name"
+    v-if="showUsers"
   >
-    <div class="q-pa-md users-online">
+    <div class="q-pa-md">
       <p class="text-weight-medium text-subtitle1 q-ma-none">Používatelia</p>
       <p class="text-grey q-pt-xs q-ma-none">{{ onlineCount }} Online</p>
     </div>
@@ -41,38 +41,57 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useUsersStore } from 'src/stores/drawer/users';
 import { useGroupsStore } from 'src/stores/drawer/groups';
-import { computed } from 'vue';
 import { useScrollHandling } from '../composables/useScrollHandling';
 
+// Stav pre zobrazenie používateľov
+const showUsers = ref(false);
+
 const Users = useUsersStore();
+const groups = useGroupsStore();
 const { sorted, onlineCount } = storeToRefs(Users);
+const { selectedId } = storeToRefs(groups);
 
 const { onMouseEnter, onMouseLeave } = useScrollHandling('.q-drawer');
 
 onMounted(async () => {
   await Users.loadMock(); // For BE fetchFromApi() or smth like that
   window.addEventListener('focus', () => void Users.reloadUsers());
+
+  // Listener pre zobrazenie používateľov
+  window.addEventListener('show-users', displayUsers);
 });
 
-const groups = useGroupsStore();
+// Funkcia pre zobrazenie používateľov
+const displayUsers = () => {
+  showUsers.value = true;
 
-const selectedGroup = computed(() => groups.selected);
+  // Skry používateľov po 10 sekundách
+  setTimeout(() => {
+    showUsers.value = false;
+  }, 10000);
+};
+
+// Sleduj zmenu kanála a skry používateľov
+watch(selectedId, () => {
+  if (showUsers.value) {
+    showUsers.value = false;
+  }
+});
+
+// Exportuj funkciu pre použitie v iných komponentoch
+defineExpose({
+  displayUsers,
+});
 </script>
 
 <style lang="scss" scoped>
 .user {
   margin: 0px 0px 4px 12px;
   padding: 12px;
-}
-.user:first-child {
-  margin-top: 12px;
-}
-.users-online {
-  border-bottom: 1.5px solid #f3f4f6;
 }
 .is-dimmed {
   opacity: 0.7;

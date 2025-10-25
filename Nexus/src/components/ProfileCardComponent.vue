@@ -20,7 +20,7 @@
           <p class="text-grey-6 text-subtitle1">Availibe for messages</p>
         </div>
       </div>
-      <div class="q-pa-lg q-my-lg">
+      <div class="q-pa-lg">
         <p class="text-white text-h6">Status</p>
         <div class="column" style="gap: 10px">
           <q-btn rounded flat class="bg-grey-7" align="left" size="md">
