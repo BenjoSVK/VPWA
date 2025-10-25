@@ -40,6 +40,15 @@
     </div>
 
     <div class="q-mt-lg">
+      <div class="text-center q-mb-lg">
+        <q-btn 
+          color="secondary" 
+          label="Show Notification Demo" 
+          @click="showNotificationDemo"
+          class="q-px-lg q-py-sm"
+        />
+      </div>
+      
       <h3 class="text-h6 text-weight-bold text-center q-mb-md">Try a command:</h3>
       <div class="row items-center q-pb-md q-px-md">
         <q-input
@@ -75,7 +84,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useQuasar } from 'quasar';
 
+const $q = useQuasar();
 const commandInput = ref('');
 const commandOutput = ref('');
 
@@ -154,6 +165,25 @@ function executeCommand() {
   }
   
   commandInput.value = '';
+}
+
+function showNotificationDemo() {
+  $q.notify({
+    message: 'This is a notification demo! 🎉',
+    position: 'top',
+    timeout: 4000,
+    color: 'primary',
+    textColor: 'white',
+    classes: 'q-pa-md',
+    actions: [
+      {
+        label: '×',
+        color: 'white',
+        round: true,
+        handler: () => {}
+      }
+    ]
+  });
 }
 </script>
 

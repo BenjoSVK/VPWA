@@ -4,7 +4,6 @@
   <c-Chat v-if="selectedGroup?.name" />
   <c-Users v-if="selectedGroup?.name" />
   
-  <!-- Show InfoPage when no chat is selected -->
   <c-InfoPage v-else />
 </template>
 <script setup lang="ts">
