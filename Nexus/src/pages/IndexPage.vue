@@ -57,7 +57,9 @@
           </div>
         </div>
       </div>
-      <div class="q-my-xl column align-center justify-center text-center showroom-container limited-width">
+      <div
+        class="q-my-xl column align-center justify-center text-center showroom-container limited-width"
+      >
         <h2 class="text-h4 q-mb-md">Rozhranie progresívnej aplikácie Nexus</h2>
         <h3 class="text-h6 q-mb-md text-weight-thin q-mb-xl">
           Real-time chatovanie s elegantným dizajnom
@@ -65,7 +67,9 @@
         <img class="q-mb-xl" src="~assets/showroom.png" alt="Showroom" width="100%" height="100%" />
       </div>
 
-      <div class="q-my-xl column align-center justify-center text-center why-container limited-width">
+      <div
+        class="q-my-xl column align-center justify-center text-center why-container limited-width"
+      >
         <h2 class="text-h4 q-mb-md">Prečo zvoliť Nexus?</h2>
         <h3 class="text-h6 q-mb-md text-weight-thin q-mb-xl">
           Moderná technológia, minimalistický dizajn a špičková funkcionalita
@@ -157,7 +161,7 @@
               <p class="text-body2 text-grey-6">Composition API</p>
             </div>
           </div>
-          
+
           <div class="col-12 col-sm-6 col-md-4 col-lg">
             <div class="tech-card column items-center">
               <div class="tech-icon-container quasar-icon">
@@ -167,7 +171,7 @@
               <p class="text-body2 text-grey-6">SPA + PWA</p>
             </div>
           </div>
-          
+
           <div class="col-12 col-sm-6 col-md-4 col-lg">
             <div class="tech-card column items-center">
               <div class="tech-icon-container adonis-icon">
@@ -177,7 +181,7 @@
               <p class="text-body2 text-grey-6">REST API</p>
             </div>
           </div>
-          
+
           <div class="col-12 col-sm-6 col-md-4 col-lg">
             <div class="tech-card column items-center">
               <div class="tech-icon-container postgres-icon">
@@ -187,7 +191,7 @@
               <p class="text-body2 text-grey-6">Databáza</p>
             </div>
           </div>
-          
+
           <div class="col-12 col-sm-6 col-md-4 col-lg">
             <div class="tech-card column items-center">
               <div class="tech-icon-container docker-icon">
@@ -199,12 +203,14 @@
           </div>
         </div>
       </div>
-      
-      <div class="quick-start-section q-mt-xl" style="width: 100vw; margin-top: 100px;">
+
+      <div class="quick-start-section q-mt-xl" style="width: 100vw; margin-top: 100px">
         <div class="quick-start-content">
           <h2 class="text-h3 q-mb-md text-white">Začnite za pár minút</h2>
-          <h3 class="text-h6 q-mb-lg text-white text-weight-thin">Jednoduché nastavenie s Node.js a PostgreSQL</h3>
-          
+          <h3 class="text-h6 q-mb-lg text-white text-weight-thin">
+            Jednoduché nastavenie s Node.js a PostgreSQL
+          </h3>
+
           <div class="code-block">
             <div class="code-line green-comment"># Backend setup</div>
             <div class="code-line">cd app/backend</div>
@@ -214,7 +220,7 @@
             <div class="code-line">cd app/frontend</div>
             <div class="code-line">npm install && npm run dev</div>
           </div>
-          
+
           <div class="q-mt-lg">
             <IndexButton
               variant="primary"
@@ -226,8 +232,8 @@
           </div>
         </div>
       </div>
-      
-      <footer style="width: 100vw;" class="q-py-xl">
+
+      <footer style="width: 100vw" class="q-py-xl">
         <div class="footer-content">
           <div class="footer-top">
             <div class="footer-logo">
@@ -237,8 +243,18 @@
               <span class="logo-text">Nexus</span>
             </div>
             <div>
-              <IndexButton variant="ghost" text="Dokumentácia" @click="handleDocumentation" class="footer-link"/>
-              <IndexButton variant="ghost" text="Dokumentácia" @click="handleDocumentation" class="footer-link"/>
+              <IndexButton
+                variant="ghost"
+                text="Dokumentácia"
+                @click="handleDocumentation"
+                class="footer-link"
+              />
+              <IndexButton
+                variant="ghost"
+                text="Dokumentácia"
+                @click="handleDocumentation"
+                class="footer-link"
+              />
             </div>
           </div>
           <div class="footer-separator"></div>
@@ -282,10 +298,12 @@ async function handleNexus() {
   border-radius: 12px;
   padding: 1.5rem 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   height: 100%;
   min-height: 180px;
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
@@ -307,28 +325,28 @@ async function handleNexus() {
 }
 
 .vue-icon {
-  background: #DCFCE7;
-  color: #00A63E;
+  background: #dcfce7;
+  color: #00a63e;
 }
 
 .quasar-icon {
-  background: #DBEAFE;
-  color: #155DFC;
+  background: #dbeafe;
+  color: #155dfc;
 }
 
 .adonis-icon {
-  background: #F3E8FF;
-  color: #9810FA;
+  background: #f3e8ff;
+  color: #9810fa;
 }
 
 .postgres-icon {
-  background: #E0E7FF;
-  color: #4F39F6;
+  background: #e0e7ff;
+  color: #4f39f6;
 }
 
 .docker-icon {
-  background: #CEFAFE;
-  color: #0092B8;
+  background: #cefafe;
+  color: #0092b8;
 }
 
 .quick-start-content {
@@ -339,7 +357,7 @@ async function handleNexus() {
 }
 
 .quick-start-section {
-  background: linear-gradient(135deg, #155DFC 0%, #9810FA 100%);
+  background: linear-gradient(135deg, #155dfc 0%, #9810fa 100%);
   width: 100%;
   display: flex;
   justify-content: center;
@@ -358,30 +376,31 @@ async function handleNexus() {
 }
 
 .code-line {
-  color: #E5E7EB;
+  color: #e5e7eb;
   margin-bottom: 0.5rem;
 }
 
 .github-button {
   background: white !important;
-  color: #155DFC !important;
+  color: #155dfc !important;
   border: none !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .github-button :deep(.icon-custom) {
-  filter: brightness(0) saturate(100%) invert(27%) sepia(96%) saturate(1352%) hue-rotate(213deg) brightness(119%) contrast(119%);
+  filter: brightness(0) saturate(100%) invert(27%) sepia(96%) saturate(1352%) hue-rotate(213deg)
+    brightness(119%) contrast(119%);
 }
 
 .green-comment {
-  color: #7BF1A8;
+  color: #7bf1a8;
 }
 
 footer {
   background: white;
   padding-top: 50px !important;
   padding-bottom: 50px !important;
-  border-top: 1px solid #E2E8F0;
+  border-top: 1px solid #e2e8f0;
 }
 
 .footer-content {
@@ -405,7 +424,7 @@ footer {
 .logo-icon {
   width: 32px;
   height: 32px;
-  background: #8B5CF6;
+  background: #8b5cf6;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -418,23 +437,23 @@ footer {
 .logo-text {
   font-weight: 700;
   font-size: 1.25rem;
-  color: #1A1A1A;
+  color: #1a1a1a;
 }
 
 .footer-link {
-  color: #4A5568;
+  color: #4a5568;
   text-decoration: none;
   font-weight: 400;
   transition: color 0.2s ease;
 }
 
 .footer-link:hover {
-  color: #2D3748;
+  color: #2d3748;
 }
 
 .footer-separator {
   height: 1px;
-  background: #E2E8F0;
+  background: #e2e8f0;
   margin-bottom: 2rem;
 }
 
@@ -443,7 +462,7 @@ footer {
 }
 
 .footer-copyright {
-  color: #4A5568;
+  color: #4a5568;
   font-size: 0.875rem;
   margin: 0;
 }
