@@ -16,7 +16,6 @@ export interface Group {
   name: string;
   private: boolean;
 }
-export type Sender = 'me' | 'other';
 
 export interface Message {
   id: string;
@@ -26,4 +25,6 @@ export interface Message {
   createdAt: number;
   name?: string | undefined;
   avatar?: string | undefined;
+  pings?: string[]; // Array of usernames that were pinged in this message
+  isPinged?: boolean; // Whether current user was pinged in this message
 }

@@ -17,8 +17,8 @@
           </div>
         </div>
         <div class="column justify-center items-center">
-          <p class="text-white text-h4">Užívateľský profil</p>
-          <p class="text-grey-6 text-subtitle1">{{ statusText }}</p>
+          <div class="text-white text-h4">Užívateľský profil</div>
+          <div class="text-grey-6 text-subtitle1">{{ statusText }}</div>
         </div>
       </div>
 
@@ -78,11 +78,10 @@
       <!-- Notifications -->
       <div class="flex justify-between q-pa-lg">
         <div class="flex">
-          <img v-if="notificationsEnabled" src="src/assets/notification.svg" />
-          <img v-else src="src/assets/notificationDisabled.svg" />
+          <img :src="notificationsEnabled ? notifOn : notifOff" class="q-pl-sm" />
           <div class="column q-mx-md">
             <p class="text-white text-h6 q-ma-none">Notifikacie</p>
-            <p class="text-grey-6 text-subtitle2 q-ma-none">{{ delayedNotificationText }}</p>
+            <p class="text-grey-6 text-subtitle2 q-ma-none">{{ notificationStatusText }}</p>
           </div>
         </div>
         <q-toggle
@@ -111,11 +110,15 @@
 </template>
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import { ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
+
+import { UserStatus } from 'src/components/models';
+// stores
 import { useUserStatusStore } from 'src/stores/user/userStatus';
 import { useNotificationStatusStore } from 'src/stores/user/notificationStatus';
-import { UserStatus } from 'src/components/models';
+
+import notifOn from '../assets/notification.svg';
+import notifOff from '../assets/notificationDisabled.svg';
 
 const router = useRouter();
 function goBack() {
@@ -134,16 +137,6 @@ const { currentStatus, statusText } = storeToRefs(userStatus);
 const { notificationsEnabled, statusText: notificationStatusText } =
   storeToRefs(notificationStatus);
 
-// Delay pre notifikácie
-const delayedNotificationText = ref(notificationStatusText.value);
-
-// Watch pre zmenu notifikácií s delay
-watch(notificationStatusText, (newValue) => {
-  setTimeout(() => {
-    delayedNotificationText.value = newValue;
-  }, 100);
-});
-
 function setStatus(status: UserStatus) {
   userStatus.setStatus(status);
 }
@@ -161,5 +154,6 @@ function setStatus(status: UserStatus) {
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.1);
 }
+
 @import '../css/index.scss';
 </style>

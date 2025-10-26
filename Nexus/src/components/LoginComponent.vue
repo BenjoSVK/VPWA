@@ -1,15 +1,15 @@
 <template>
   <div class="login-container">
-    <div style="margin-bottom: 60px;" class="row items-center justify-center">
+    <div style="margin-bottom: 60px" class="row items-center justify-center">
       <div
-        style="width: 46px; height: 46px; border-radius: 16px;"
-        class="row items-center justify-center bg-gradient-secondary"
+        style="width: 46px; height: 46px; border-radius: 16px"
+        class="row items-center justify-center bg-gradient-secondary q-mr-xs"
       >
         <img src="~assets/Icon.svg" alt="Icon" width="24px" height="24px" />
       </div>
-      <p style="font-weight: 700;" class="text-white text-h4 q-ma-none q-ml-sm">Nexus</p>
+      <p style="font-weight: 700" class="text-white text-h3 q-ma-none q-ml-sm">Nexus</p>
     </div>
-    
+
     <div class="login-form">
       <q-input
         v-model="email"
@@ -18,11 +18,11 @@
         outlined
         dark
         class="q-mb-md"
-        :input-style="{ color: 'white' }"
+        :input-style="{ color: 'white', paddingLeft: '8px' }"
         @blur="validateEmail"
       />
       <div v-if="emailError" class="error-message">{{ emailError }}</div>
-      
+
       <q-input
         v-model="password"
         label="Password"
@@ -30,22 +30,26 @@
         outlined
         dark
         class="q-mb-md"
-        :input-style="{ color: 'white' }"
+        :input-style="{ color: 'white', paddingLeft: '8px' }"
         @blur="validatePassword"
+        @keyup.enter="handleLogin"
       />
       <div v-if="passwordError" class="error-message">{{ passwordError }}</div>
-      
+
       <q-btn
+        push
         color="primary"
         label="Log In"
         class="full-width q-mb-md q-py-sm"
         size="md"
         @click="handleLogin"
       />
-      
+
       <div class="text-center">
-        <span style="color: rgba(255, 255, 255, 0.8);">No account? </span>
-        <span class="account-link text-white cursor-pointer q-pl-xs" @click="switchToRegister">Create one!</span>
+        <span style="color: rgba(255, 255, 255, 0.8)">No account? </span>
+        <span class="account-link text-white cursor-pointer q-pl-xs" @click="switchToRegister"
+          >Create one!</span
+        >
       </div>
     </div>
   </div>
@@ -90,14 +94,14 @@ function switchToRegister() {
 function handleLogin() {
   emailError.value = '';
   passwordError.value = '';
-  
+
   validateEmail();
   validatePassword();
-  
+
   if (emailError.value || passwordError.value) {
     return;
   }
-  
+
   router.push('/chat').catch(() => {
     console.error('Failed to navigate to chat');
   });

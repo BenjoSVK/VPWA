@@ -3,7 +3,7 @@
   <c-Channels />
   <c-Chat v-if="selectedGroup?.name" />
   <c-Users v-if="selectedGroup?.name" />
-  
+
   <c-InfoPage v-else />
 </template>
 <script setup lang="ts">

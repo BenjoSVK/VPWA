@@ -1,15 +1,15 @@
 <template>
   <div class="register-container">
-    <div style="margin-bottom: 60px;" class="row items-center justify-center">
+    <div style="margin-bottom: 60px" class="row items-center justify-center">
       <div
-        style="width: 46px; height: 46px; border-radius: 16px;"
+        style="width: 46px; height: 46px; border-radius: 16px"
         class="row items-center justify-center bg-gradient-secondary"
       >
         <img src="~assets/Icon.svg" alt="Icon" width="24px" height="24px" />
       </div>
-      <p style="font-weight: 700;" class="text-white text-h4 q-ma-none q-ml-sm">Nexus</p>
+      <p style="font-weight: 700" class="text-white text-h3 q-ma-none q-ml-sm">Nexus</p>
     </div>
-    
+
     <div class="register-form">
       <q-input
         v-model="registerData.name"
@@ -17,11 +17,11 @@
         outlined
         dark
         class="q-mb-md"
-        :input-style="{ color: 'white' }"
+        :input-style="{ color: 'white', paddingLeft: '8px' }"
         @blur="validateName"
       />
       <div v-if="nameError" class="error-message">{{ nameError }}</div>
-      
+
       <q-input
         v-model="registerData.email"
         label="Email"
@@ -29,11 +29,23 @@
         outlined
         dark
         class="q-mb-md"
-        :input-style="{ color: 'white' }"
+        :input-style="{ color: 'white', paddingLeft: '8px' }"
         @blur="validateEmail"
       />
       <div v-if="emailError" class="error-message">{{ emailError }}</div>
-      
+
+      <q-input
+        v-model="registerData.nickname"
+        label="Nickname"
+        type="text"
+        outlined
+        dark
+        class="q-mb-md"
+        :input-style="{ color: 'white', paddingLeft: '8px' }"
+        @blur="validateNickname"
+      />
+      <div v-if="nicknameError" class="error-message">{{ nicknameError }}</div>
+
       <q-input
         v-model="registerData.password"
         label="Password"
@@ -41,23 +53,11 @@
         outlined
         dark
         class="q-mb-md"
-        :input-style="{ color: 'white' }"
+        :input-style="{ color: 'white', paddingLeft: '8px' }"
         @blur="validatePassword"
       />
       <div v-if="passwordError" class="error-message">{{ passwordError }}</div>
-      
-      <q-input
-        v-model="registerData.confirmPassword"
-        label="Confirm Password"
-        type="password"
-        outlined
-        dark
-        class="q-mb-md"
-        :input-style="{ color: 'white' }"
-        @blur="validateConfirmPassword"
-      />
-      <div v-if="confirmPasswordError" class="error-message">{{ confirmPasswordError }}</div>
-      
+
       <q-btn
         color="primary"
         label="Register"
@@ -65,10 +65,12 @@
         size="md"
         @click="handleRegister"
       />
-      
+
       <div class="text-center">
-        <span style="color: rgba(255, 255, 255, 0.8);">Already have an account? </span>
-        <span class="account-link text-white cursor-pointer q-pl-xs" @click="switchToLogin">Sign Up!</span>
+        <span style="color: rgba(255, 255, 255, 0.8)">Already have an account? </span>
+        <span class="account-link text-white cursor-pointer q-pl-xs" @click="switchToLogin"
+          >Sign Up!</span
+        >
       </div>
     </div>
   </div>
@@ -80,16 +82,18 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const registerData = ref({
+  nickname: '',
   name: '',
   email: '',
   password: '',
-  confirmPassword: ''
+  // confirmPassword: '',
 });
 
+const nicknameError = ref('');
 const nameError = ref('');
 const emailError = ref('');
 const passwordError = ref('');
-const confirmPasswordError = ref('');
+// const confirmPasswordError = ref('');
 
 function validateName() {
   if (!registerData.value.name) {
@@ -110,6 +114,15 @@ function validateEmail() {
     emailError.value = '';
   }
 }
+function validateNickname() {
+  if (!registerData.value.nickname) {
+    nicknameError.value = 'Nickname is required';
+  } else if (registerData.value.nickname.length < 2) {
+    nicknameError.value = 'Nickname must be at least 3 characters';
+  } else {
+    nicknameError.value = '';
+  }
+}
 
 function validatePassword() {
   if (!registerData.value.password) {
@@ -121,15 +134,15 @@ function validatePassword() {
   }
 }
 
-function validateConfirmPassword() {
-  if (!registerData.value.confirmPassword) {
-    confirmPasswordError.value = 'Please confirm your password';
-  } else if (registerData.value.password !== registerData.value.confirmPassword) {
-    confirmPasswordError.value = 'Passwords do not match';
-  } else {
-    confirmPasswordError.value = '';
-  }
-}
+// function validateConfirmPassword() {
+//   if (!registerData.value.confirmPassword) {
+//     confirmPasswordError.value = 'Please confirm your password';
+//   } else if (registerData.value.password !== registerData.value.confirmPassword) {
+//     confirmPasswordError.value = 'Passwords do not match';
+//   } else {
+//     confirmPasswordError.value = '';
+//   }
+// }
 
 function switchToLogin() {
   router.push('/auth/login').catch(() => {
@@ -140,18 +153,25 @@ function switchToLogin() {
 function handleRegister() {
   nameError.value = '';
   emailError.value = '';
+  nicknameError.value = '';
   passwordError.value = '';
-  confirmPasswordError.value = '';
-  
+  // confirmPasswordError.value = '';
   validateName();
   validateEmail();
+  validateNickname();
   validatePassword();
-  validateConfirmPassword();
-  
-  if (nameError.value || emailError.value || passwordError.value || confirmPasswordError.value) {
+  // validateConfirmPassword();
+
+  if (
+    nameError.value ||
+    emailError.value ||
+    nicknameError.value ||
+    passwordError.value
+    // || confirmPasswordError.value
+  ) {
     return;
   }
-  
+
   router.push('/chat').catch(() => {
     console.error('Failed to navigate to chat');
   });

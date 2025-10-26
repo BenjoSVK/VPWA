@@ -1,73 +1,70 @@
 <template>
   <q-drawer
     class="bg-gradient-primary"
-    :mini-width="80"
     :width="370"
+    :mini-width="80"
     :mini="drw.isMini"
-    :content-class="drw.isMini ? 'drawer--mini' : 'drawer--full'"
-    :breakpoint="0"
     v-model="drw.isOpen"
     @mouseenter="onMouseEnter"
     @mouseleave="onMouseLeave"
   >
-    <div class="justify-between column full-height" style="height: 100dvh">
+    <div class="column full-height" style="height: 100dvh">
+      <!-- Header -->
       <div
-        class="items-center flex q-pt-md header-section"
-        :class="drw.isMini ? '' : 'q-px-lg row'"
+        class="items-center row q-pt-md header-section"
+        :class="{
+          'q-px-lg': !drw.isMini,
+          'justify-center': drw.isMini,
+          'justify-between': !drw.isMini,
+        }"
         @click="goToInfoPage"
         style="cursor: pointer"
       >
         <div
-          class="items-center justify-center bg-gradient-secondary row q-pa-sm border-rad brand-icon"
-          v-show="!drw.isMini"
+          class="bg-gradient-secondary row q-pa-sm border-rad easy-out"
+          :class="{ 'label-col--mini': drw.isMini }"
         >
           <img :src="brandIcon" alt="Icon" />
         </div>
-        <div
-          class="col row items-center align-center easy-out"
-          :class="drw.isMini ? 'justify-center' : 'justify-between'"
+
+        <q-item-label
+          class="text-h6 text-light q-pl-md text-weight-bold q-mr-auto"
+          :class="{ 'label-col--mini': drw.isMini }"
+          header
+          >Nexus</q-item-label
         >
-          <q-item-label
-            v-show="!drw.isMini"
-            header
-            class="text-h6 text-light q-pl-md text-weight-bold"
-            >Nexus</q-item-label
-          >
-          <button
-            class="border-rad flex q-pa-xs"
-            @click.stop="drw.toggleMini"
-            aria-label="Menu"
-            style="background-color: rgba(255, 255, 255, 0.1); cursor: pointer"
-          >
-            <img :src="menuIcon" alt="menu-icon" class="q-pa-sm" />
-          </button>
-        </div>
+        <button
+          class="border-rad flex q-pa-xs"
+          @click.stop="drw.toggleMini"
+          aria-label="Menu"
+          style="background-color: rgba(255, 255, 255, 0.1); cursor: pointer"
+        >
+          <img :src="menuIcon" alt="menu-icon" class="q-pa-sm" />
+        </button>
       </div>
 
-      <div
-        class="col q-pt-md"
-        style="flex: 1; display: flex; flex-direction: column; min-height: 0"
-      >
+      <div class="col" style="flex: 1; display: flex; flex-direction: column; min-height: 0">
         <q-list padding>
-          <q-item dense class="bg-transparent text-h6 text-white q-px-lg q-pb-md easy-out">
-            <q-item-section avatar class="items-center justify-center q-pr-sm easy-out">
+          <q-item dense class="items-center q-px-lg easy-out justify-center flex">
+            <q-item-section avatar class="items-center q-pr-sm">
               <img src="/src/assets/groups.svg" width="25" height="25" />
             </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-weight-medium groups-label">Skupiny</q-item-label>
+            <q-item-section :class="{ 'label-col--mini': drw.isMini }">
+              <q-item-label class="text-weight-medium text-h6 text-white">Skupiny</q-item-label>
             </q-item-section>
-            <q-item-section side>
+            <q-item-section side :class="{ 'label-col--mini': drw.isMini }">
               <q-btn
                 rounded
                 flat
+                size="sm"
                 color="grey"
                 class="flex items-center justify-center q-pa-xs easy-out"
                 @click.stop="dialog = true"
-                size="sm"
                 ><q-icon name="img:src/assets/plus.svg" size="20px" />
 
                 <q-dialog v-model="dialog" :backdrop-filter="'blur(3px) saturate(150%)'">
                   <q-card style="border-radius: 20px" @click.stop>
+                    <!-- Create Group Header -->
                     <q-card-section class="column text-h6 bg-gradient-secondary q-pb-sm text-light">
                       <div class="row items-center">
                         <q-icon name="img:../src/assets/star.svg" size="40px" class="q-mr-sm" />
@@ -85,18 +82,18 @@
                       </div>
                     </q-card-section>
 
+                    <!-- Group Name Input -->
                     <q-card-section class="row items-center q-pb-xs">
-                      <q-icon
-                        name="img:/src/assets/Icon.svg"
-                        size="15px"
-                        class="q-mr-xs"
-                        style="
-                          filter: brightness(0) saturate(100%) invert(48%) sepia(79%)
-                            saturate(2476%) hue-rotate(200deg) brightness(118%) contrast(119%);
-                          transform: translateY(-2px);
-                        "
-                      />
                       <p class="text-weight-medium text-subtitle+ q-pa-none q-ma-none">
+                        <q-icon
+                          name="img:/src/assets/Icon.svg"
+                          size="15px"
+                          class="q-mb-xs"
+                          style="
+                            filter: brightness(0) saturate(100%) invert(48%) sepia(79%)
+                              saturate(2476%) hue-rotate(200deg) brightness(118%) contrast(119%);
+                          "
+                        />
                         Názov skupiny *
                       </p></q-card-section
                     >
@@ -114,6 +111,8 @@
                         "
                       />
                     </q-card-section>
+
+                    <!-- Group Type Selection -->
                     <q-card-section class="q-py-none">
                       <p class="text-weight-medium text-subtitle1 q-pa-none q-ma-none">
                         Typ skupiny *
@@ -135,7 +134,7 @@
                                 style="background-color: #dbeafe"
                               />
                               <q-icon
-                                v-if="clickedCard === 'public'"
+                                v-show="clickedCard === 'public'"
                                 name="img:/src/assets/check.svg"
                                 class="bg-tertiary q-pa-xs"
                                 style="border-radius: 50%"
@@ -178,53 +177,69 @@
                       </div>
                     </q-card-section>
 
-                    <!-- Výber používateľov -->
+                    <!-- User Selection -->
                     <q-card-section class="q-py-sm">
                       <p class="text-weight-medium text-subtitle1 q-pa-none q-mt-sm q-mb-none">
-                        Vybrať používateľov
+                        <q-icon
+                          name="img:/src/assets/users.svg"
+                          size="15px"
+                          class="q-mr-xs q-mb-xs"
+                        />
+                        Pridať členov
                       </p>
-                      <div class="q-mt-sm">
-                        <q-list dense>
-                          <q-item
-                            v-for="user in availableUsers"
-                            :key="user.id"
-                            clickable
-                            v-ripple
-                            @click="toggleUserSelection(user.id)"
-                            :class="selectedUsers.includes(user.id) ? 'bg-blue-1' : ''"
-                            class="border-rad q-mb-xs"
-                          >
-                            <q-item-section side>
-                              <q-checkbox
-                                v-model="selectedUsers"
-                                :val="user.id"
-                                color="primary"
-                                @click.stop
-                              />
-                            </q-item-section>
-                            <q-item-section avatar>
-                              <q-avatar size="32px">
-                                <img
-                                  :src="user.icon || '/src/assets/UserDefault.svg'"
-                                  :alt="user.name"
+                      <div class="q-mt-sm border-rad">
+                        <q-scroll-area
+                          style="height: 200px; border: 1px solid #e5e7eb"
+                          class="border-rad q-pa-xs"
+                          :bar-style="{ backgroundColor: 'transparent', width: '6px' }"
+                          :thumb-style="{
+                            borderRadius: '20px',
+                            width: '6px',
+                          }"
+                        >
+                          <q-list dense>
+                            <q-item
+                              v-for="user in availableUsers"
+                              :key="user.id"
+                              clickable
+                              v-ripple
+                              @click="toggleUserSelection(user.id)"
+                              :class="selectedUsers.includes(user.id) ? 'bg-blue-1' : ''"
+                              class="border-rad q-mb-xs"
+                            >
+                              <q-item-section side>
+                                <q-checkbox
+                                  v-model="selectedUsers"
+                                  :val="user.id"
+                                  color="primary"
+                                  @click.stop
                                 />
-                              </q-avatar>
-                            </q-item-section>
-                            <q-item-section>
-                              <q-item-label>{{ user.name }}</q-item-label>
-                              <q-item-label caption>{{ user.status }}</q-item-label>
-                            </q-item-section>
-                          </q-item>
-                        </q-list>
+                              </q-item-section>
+                              <q-item-section avatar>
+                                <q-avatar size="32px">
+                                  <img
+                                    :src="user.icon || '/src/assets/UserDefault.svg'"
+                                    :alt="user.name"
+                                  />
+                                </q-avatar>
+                              </q-item-section>
+                              <q-item-section>
+                                <q-item-label>{{ user.name }}</q-item-label>
+                                <q-item-label caption>{{ user.status }}</q-item-label>
+                              </q-item-section>
+                            </q-item>
+                          </q-list>
+                        </q-scroll-area>
                       </div>
                     </q-card-section>
 
+                    <!-- Action Buttons -->
                     <div class="row items-center justify-between q-pa-sm">
                       <q-card-actions align="left">
                         <q-btn
                           outline
-                          label="Close"
-                          color="tertiary"
+                          label="Zrušiť"
+                          color="grey-7"
                           class="border-rad"
                           v-close-popup
                           @click="clickedCard = ''"
@@ -232,12 +247,14 @@
                       </q-card-actions>
                       <q-card-actions align="right">
                         <q-btn
+                          icon="img:../src/assets/star.svg"
                           label="Vytvoriť skupinu"
                           color="tertiary"
                           class="border-rad"
                           :disable="!groupName.trim() || !clickedCard || selectedUsers.length < 2"
                           @click="createGroup"
-                        ></q-btn>
+                        >
+                        </q-btn>
                       </q-card-actions>
                     </div>
                   </q-card>
@@ -247,8 +264,10 @@
           </q-item>
         </q-list>
         <!-- Groups -->
-        <div class="column q-mb-sm" style="overflow-y: scroll; overflow-x: none; min-height: 0">
-          <GroupList />
+        <div class="column q-mt-sm q-mb-md" style="min-height: 0; flex: 1; overflow: hidden">
+          <q-scroll-area style="height: 100%">
+            <GroupList />
+          </q-scroll-area>
         </div>
       </div>
       <div>
@@ -351,16 +370,16 @@ const { onMouseEnter, onMouseLeave } = useScrollHandling('.q-drawer');
 }
 
 .header-section {
-  transition: all 0.5s ease-out;
-}
-
-.brand-icon {
-  transition:
-    opacity 0.5s ease-out,
-    transform 0.5s ease-out;
+  transition: all 0.2s ease-out;
 }
 
 .easy-out {
-  transition: all 0.5s ease-out;
+  transition: all 0.3s ease;
+}
+.label-col--mini {
+  max-width: 0;
+  opacity: 0;
+  margin-left: 0;
+  display: none;
 }
 </style>

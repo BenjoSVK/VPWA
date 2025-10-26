@@ -37,6 +37,15 @@
           <span v-else class="text-weight-medium">
             {{ g.name?.[0] ?? '•' }}
           </span>
+
+          <!-- Invited badge for Developers channel -->
+          <div
+            v-if="g.name === 'Developers Hub' && !drw.isMini"
+            class="invite-badge q-ml-auto q-mr-sm"
+          >
+            <span class="text-caption text-weight-medium">Invited</span>
+          </div>
+
           <q-icon
             v-if="groups.selectedId === g.id && !drw.isMini"
             name="img:src/assets/close.svg"
@@ -58,9 +67,16 @@ const sortedGroups = computed(() => {
   if (!groups.groups) return [];
 
   return [...groups.groups].sort((a, b) => {
+    // Developers Hub je vždy na vrchu
+    if (a.name === 'Developers Hub') return -1;
+    if (b.name === 'Developers Hub') return 1;
+
+    // Potom vybraný kanál
     if (a.id === groups.selectedId) return -1;
     if (b.id === groups.selectedId) return 1;
-    return 0;
+
+    // Ostatné kanály podľa abecedy
+    return a.name.localeCompare(b.name);
   });
 });
 const drw = useDrawerStore();
@@ -81,5 +97,29 @@ const groups = useGroupsStore();
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
+}
+
+.invite-badge {
+  background: rgba(76, 175, 80, 0.15);
+  border: 1px solid rgba(76, 175, 80, 0.4);
+  border-radius: 8px;
+  padding: 2px 6px;
+  display: flex;
+  align-items: center;
+  color: #4caf50;
+  font-size: 10px;
+  animation: invitePulse 2s ease-in-out infinite;
+}
+
+@keyframes invitePulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
 }
 </style>

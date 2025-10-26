@@ -1,8 +1,8 @@
 <template>
-  <div class="col flex items-center" :class="drw.isMini ? 'justify-center' : 'q-pl-lg'">
+  <div class="col row items-center" :class="drw.isMini ? 'justify-center' : 'q-pl-lg'">
     <q-btn
       push
-      class="hamburger-icon border-rad flex q-pa-xs"
+      class="hamburger-icon border-rad q-pa-xs"
       :class="drw.isMini ? '' : 'q-mr-sm'"
       @click="handleProfileCard"
     >
@@ -12,7 +12,7 @@
         style="width: 20px; fill: #d1d5dc"
       />
     </q-btn>
-    <p v-if="!drw.isMini" class="text-subtitle2 text-grey-5 q-ma-none">Settings</p>
+    <div v-show="!drw.isMini" class="text-subtitle2 text-grey-5">Settings</div>
   </div>
   <div :class="drw.isMini ? 'q-py-lg' : 'q-pa-lg'">
     <div
@@ -28,11 +28,9 @@
         />
       </q-avatar>
       <div v-show="!drw.isMini" class="col q-pl-md">
-        <div class="text-light items-center">
-          <p class="q-ma-none text-weight-medium text-subtitle2">User Name</p>
-        </div>
-        <div class="text-grey">
-          <p class="q-ma-none text-weight-regular text-body2">{{ userStatus.statusText }}</p>
+        <div class="text-subtitle2 text-weight-medium text-light">User Name</div>
+        <div class="text-body2 text-weight-regular text-grey">
+          {{ userStatus.statusText }}
         </div>
       </div>
       <div
@@ -40,18 +38,9 @@
         class="justify-center align-center items-center flex cursor-pointer q-ma-sm"
       >
         <img
-          v-if="notificationsEnabled"
-          src="/src/assets/notification.svg"
-          name="Settings"
-          class="text-light"
-          @click.stop="notificationStatus.disableNotifications()"
-        />
-        <img
-          v-else
-          src="/src/assets/notificationDisabled.svg"
-          name="Settings"
-          class="text-light"
-          @click.stop="notificationStatus.enableNotifications()"
+          :src="notificationsEnabled ? notifOn : notifOff"
+          class="q-pl-sm"
+          @click="toggleNotifications"
         />
       </div>
     </div>
@@ -71,8 +60,14 @@ const { notificationsEnabled } = storeToRefs(notificationStatus);
 const router = useRouter();
 const drw = useDrawerStore();
 
+import notifOn from '../assets/notification.svg';
+import notifOff from '../assets/notificationDisabled.svg';
+
 async function handleProfileCard() {
   await router.push('/profile');
+}
+function toggleNotifications() {
+  notificationStatus.toggleNotifications();
 }
 </script>
 <style lang="scss" scoped>

@@ -201,20 +201,36 @@ export const useChatStore = defineStore('chat', {
     setMessages(groupId: string, msgs: Message[]) {
       this.messagesByGroup[groupId] = msgs;
     },
-    addMessage(groupId: string, text: string, sent: boolean = true, name?: string) {
+    addMessage(groupId: string, text: string, sent = true, name?: string) {
       const list = this.messagesByGroup[groupId] ?? (this.messagesByGroup[groupId] = []);
-      list.push({
+
+      const pingRegex = /\/ping\s+(\w+)/gi;
+      const pings: string[] = [];
+      let match;
+      while ((match = pingRegex.exec(text)) !== null) {
+        pings.push(match[1] ?? 'Unknown');
+      }
+
+      const msg: Message = {
         id: crypto.randomUUID(),
         groupId,
         text,
         sent,
         name: sent ? undefined : name || 'User',
-        avatar: sent ? undefined : 'https://cdn.quasar.dev/img/avatar1.jpg',
+        avatar: sent ? undefined : 'img:src/assets/UserDefault.svg',
         createdAt: Date.now(),
-      });
+        pings,
+        isPinged: pings.length > 0,
+      };
+
+      list.push(msg);
+      return msg;
     },
     setLastRead(groupId: string, ts: number = Date.now()) {
       this.lastReadAtByGroup[groupId] = ts;
+    },
+    getLastRead(groupId: string): number | null {
+      return this.lastReadAtByGroup[groupId] ?? null;
     },
   },
 });

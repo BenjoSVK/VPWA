@@ -5,14 +5,19 @@
     show-if-above
     :width="320"
     :breakpoint="1023"
+    style="border-left: 1px solid #e0e0e0"
     @mouseenter="onMouseEnter"
     @mouseleave="onMouseLeave"
     v-if="showUsers"
   >
-    <div class="q-pa-md">
-      <p class="text-weight-medium text-subtitle1 q-ma-none">Používatelia</p>
-      <p class="text-grey q-pt-xs q-ma-none">{{ onlineCount }} Online</p>
+    <div class="q-px-md q-pt-md q-pb-sm">
+      <p class="text-weight-bold text-subtitle1 q-ma-none q-pl-xs">Používatelia</p>
+      <Search />
     </div>
+    <q-separator class="q-my-sm" />
+    <p class="text-grey text-subtitle2 text-weight-bold q-pt-xs q-px-md q-ma-none">
+      ONLINE — {{ onlineCount }}
+    </p>
     <div>
       <q-item
         v-for="u in sorted"
@@ -46,7 +51,7 @@ import { storeToRefs } from 'pinia';
 import { useUsersStore } from 'src/stores/drawer/users';
 import { useGroupsStore } from 'src/stores/drawer/groups';
 import { useScrollHandling } from '../composables/useScrollHandling';
-
+import Search from 'src/components/SearchComponent.vue';
 // Stav pre zobrazenie používateľov
 const showUsers = ref(false);
 
@@ -70,9 +75,9 @@ const displayUsers = () => {
   showUsers.value = true;
 
   // Skry používateľov po 10 sekundách
-  setTimeout(() => {
-    showUsers.value = false;
-  }, 10000);
+  // setTimeout(() => {
+  //   showUsers.value = false;
+  // }, 10000);
 };
 
 // Sleduj zmenu kanála a skry používateľov
