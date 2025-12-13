@@ -19,6 +19,7 @@
         dark
         class="q-mb-md"
         :input-style="{ color: 'white', paddingLeft: '8px' }"
+        :disable="loading"
         @blur="validateEmail"
       />
       <div v-if="emailError" class="error-message">{{ emailError }}</div>
@@ -31,10 +32,13 @@
         dark
         class="q-mb-md"
         :input-style="{ color: 'white', paddingLeft: '8px' }"
+        :disable="loading"
         @blur="validatePassword"
         @keyup.enter="handleLogin"
       />
       <div v-if="passwordError" class="error-message">{{ passwordError }}</div>
+
+      <div v-if="generalError" class="error-message q-mb-md">{{ generalError }}</div>
 
       <q-btn
         push
@@ -42,6 +46,8 @@
         label="Log In"
         class="full-width q-mb-md q-py-sm"
         size="md"
+        :loading="loading"
+        :disable="loading"
         @click="handleLogin"
       />
 
@@ -58,12 +64,17 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from 'src/stores/auth/auth';
 
 const router = useRouter();
+const auth = useAuthStore();
+
 const email = ref('');
 const password = ref('');
 const emailError = ref('');
 const passwordError = ref('');
+const generalError = ref('');
+const loading = ref(false);
 
 function validateEmail() {
   if (!email.value) {
@@ -91,9 +102,10 @@ function switchToRegister() {
   });
 }
 
-function handleLogin() {
+async function handleLogin() {
   emailError.value = '';
   passwordError.value = '';
+  generalError.value = '';
 
   validateEmail();
   validatePassword();
@@ -102,9 +114,22 @@ function handleLogin() {
     return;
   }
 
-  router.push('/chat').catch(() => {
-    console.error('Failed to navigate to chat');
-  });
+  loading.value = true;
+
+  try {
+    await auth.login(email.value, password.value);
+    router.push('/chat').catch(() => {
+      console.error('Failed to navigate to chat');
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      generalError.value = error.message;
+    } else {
+      generalError.value = 'Login failed. Please try again.';
+    }
+  } finally {
+    loading.value = false;
+  }
 }
 </script>
 

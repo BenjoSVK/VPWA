@@ -20,56 +20,116 @@
       :class="drw.isMini ? '' : 'user-profile-container'"
     >
       <q-avatar>
-        <img
-          :src="UserAvatar"
-          alt="avatar"
-          class="avatar-img cursor-pointer"
+        <div 
+          class="avatar-img cursor-pointer flex items-center justify-center bg-primary text-white"
+          style="width: 40px; height: 40px; border-radius: 50%; font-weight: bold"
           @click="handleProfileCard"
-        />
+        >
+          {{ userInitials }}
+        </div>
       </q-avatar>
       <div v-show="!drw.isMini" class="col q-pl-md">
-        <div class="text-subtitle2 text-weight-medium text-light">User Name</div>
+        <div class="text-subtitle2 text-weight-medium text-light">
+          {{ auth.profile?.nick_name ?? 'Guest' }}
+        </div>
         <div class="text-body2 text-weight-regular text-grey">
-          {{ userStatus.statusText }}
+          {{ auth.fullName ?? 'Not logged in' }}
         </div>
       </div>
       <div
         v-show="!drw.isMini"
-        class="justify-center align-center items-center flex cursor-pointer q-ma-sm"
+        class="row items-center"
       >
-        <img
-          :src="notificationsEnabled ? notifOn : notifOff"
-          class="q-pl-sm"
-          @click="toggleNotifications"
-        />
+        <!-- Notification toggle -->
+        <q-btn
+          flat
+          round
+          dense
+          size="sm"
+          class="q-mr-xs"
+          @click="toggleNotificationMode"
+        >
+          <img 
+            :src="auth.profile?.notify_mentions_only ? '/src/assets/notificationDisabled.svg' : '/src/assets/Notification.svg'" 
+            style="width: 18px; height: 18px;"
+          />
+          <q-tooltip>
+            {{ auth.profile?.notify_mentions_only ? 'Len @mentions (klikni pre všetky)' : 'Všetky notifikácie (klikni pre len @mentions)' }}
+          </q-tooltip>
+        </q-btn>
+        
+        <!-- Logout button -->
+        <q-btn
+          flat
+          round
+          dense
+          size="sm"
+          @click="handleLogout"
+        >
+          <img src="/src/assets/outBox.svg" style="width: 18px; height: 18px;" />
+          <q-tooltip>Logout</q-tooltip>
+        </q-btn>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import UserAvatar from 'src/assets/UserDefault.svg';
+import { computed } from 'vue';
 import { useDrawerStore } from 'src/stores/drawer/drawer';
+import { useAuthStore } from 'src/stores/auth/auth';
+import { useChannelsStore } from 'src/stores/channels/channels';
+import { useMessagesStore } from 'src/stores/messages/messages';
 import { useRouter } from 'vue-router';
-import { useUserStatusStore } from 'src/stores/user/userStatus';
-import { storeToRefs } from 'pinia';
-import { useNotificationStatusStore } from 'src/stores/user/notificationStatus';
-const userStatus = useUserStatusStore();
-const notificationStatus = useNotificationStatusStore();
-const { notificationsEnabled } = storeToRefs(notificationStatus);
-const router = useRouter();
-const drw = useDrawerStore();
+import { setAuthToken } from 'src/lib/api';
 
-import notifOn from '../assets/notification.svg';
-import notifOff from '../assets/notificationDisabled.svg';
+const drw = useDrawerStore();
+const auth = useAuthStore();
+const channels = useChannelsStore();
+const messages = useMessagesStore();
+const router = useRouter();
+
+const userInitials = computed(() => {
+  if (!auth.profile) return '?';
+  const first = auth.profile.first_name?.[0] ?? '';
+  const last = auth.profile.last_name?.[0] ?? '';
+  return (first + last).toUpperCase() || auth.profile.nick_name?.[0]?.toUpperCase() || '?';
+});
 
 async function handleProfileCard() {
   await router.push('/profile');
 }
-function toggleNotifications() {
-  notificationStatus.toggleNotifications();
+
+async function toggleNotificationMode() {
+  // Request notification permission first if not granted
+  if ('Notification' in window && Notification.permission === 'default') {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') {
+      return; // User denied, don't toggle
+    }
+  }
+  
+  const currentSetting = auth.profile?.notify_mentions_only ?? false;
+  await auth.updateNotificationSettings(!currentSetting);
+}
+
+function handleLogout() {
+  // Stop all polling
+  channels.reset();
+  messages.reset();
+  
+  // Clear auth token
+  setAuthToken(null);
+  
+  // Clear all storage
+  localStorage.clear();
+  sessionStorage.clear();
+  
+  // Force full page reload to login
+  window.location.href = window.location.origin + '/?_=' + Date.now() + '#/auth/login';
 }
 </script>
+
 <style lang="scss" scoped>
 .user-profile-container {
   border-radius: 1.25rem;
@@ -77,33 +137,38 @@ function toggleNotifications() {
   border: 1px solid rgba(255, 255, 255, 0.05);
   padding: 13px;
 }
+
 .avatar-img {
   border-style: solid;
   border-color: rgba(255, 255, 255, 0.1);
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   border-width: 3px;
 }
+
 .avatar-img:hover {
   transform: scale(1.08);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
+
 .avatar-img:active {
   transform: scale(1.05);
   box-shadow: 0 6px 16px rgba(255, 255, 255, 0.15);
   filter: brightness(1.2) saturate(1.2);
 }
+
 .hamburger-icon {
   background-color: rgba(255, 255, 255, 0.1);
 }
+
 .hamburger-icon:hover {
   background-color: rgba(255, 255, 255, 0.2);
   transition: background-color 0.3s ease;
 }
+
 .user-settings {
   transition: transform 0.8s ease;
 }
+
 .hamburger-icon:hover .user-settings {
   transform: rotate(135deg);
 }

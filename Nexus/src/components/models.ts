@@ -1,3 +1,6 @@
+// Legacy types - keeping for backwards compatibility during transition
+// New types are in src/lib/database.types.ts
+
 export enum UserStatus {
   Online = 'Online',
   Offline = 'Offline',
@@ -25,6 +28,6 @@ export interface Message {
   createdAt: number;
   name?: string | undefined;
   avatar?: string | undefined;
-  pings?: string[]; // Array of usernames that were pinged in this message
-  isPinged?: boolean; // Whether current user was pinged in this message
+  pings?: string[];
+  isPinged?: boolean;
 }

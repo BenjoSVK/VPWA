@@ -65,7 +65,7 @@
           placeholder="Type a command (e.g., /help, /status, /join <groupname> [private])"
           class="q-py-md q-pl-sm q-pr-md col"
           input-style="padding-left: 12px"
-          @keyup.enter="executeCommand"
+          @keyup.enter="executeCommandHandler"
         >
           <template #append>
             <q-btn flat class="q-pa-none">
@@ -76,7 +76,7 @@
         <q-btn
           class="bg-primary q-pa-md q-mx-xs"
           rounded
-          @click="executeCommand"
+          @click="executeCommandHandler"
           :disable="!commandInput.trim()"
         >
           <img src="/src/assets/Icon_sent.svg" style="transform: translate(-1px, 1px)" />
@@ -89,12 +89,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useQuasar } from 'quasar';
-import { useGroupsStore } from 'src/stores/drawer/groups';
-import { useRouter } from 'vue-router';
+import { executeCommand } from 'src/services/commandParser';
 
 const $q = useQuasar();
-const groups = useGroupsStore();
-const router = useRouter();
 const commandInput = ref('');
 
 const generalCommands = ref([
@@ -143,80 +140,42 @@ const channelCommands = ref([
   },
 ]);
 
-function executeCommand() {
+async function executeCommandHandler() {
   if (!commandInput.value.trim()) return;
 
-  const command = commandInput.value.toLowerCase().trim();
-  let message = '';
-
-  if (command.startsWith('/join ')) {
-    let groupName = command.substring(6).trim(); // Remove '/join ' prefix
-    let isPrivate = false;
-
-    // Check if the last word is "private" and remove it
-    if (groupName.endsWith(' private')) {
-      groupName = groupName.slice(0, -8); // Remove " private" (8 characters)
-      isPrivate = true;
-    }
-
-    if (groupName) {
-      const existingGroup = groups.groups?.find((g) => g.name === groupName);
-      if (!existingGroup) {
-        groups.addGroup(groupName, isPrivate);
-        const channelType = isPrivate ? 'private' : 'public';
-        message = `Created and joined ${groupName} ${channelType} channel!`;
-      } else {
-        groups.setSelected(existingGroup.id);
-        message = `Joined ${groupName} channel!`;
-      }
-      router.push('/chat').catch(() => {
-        console.error('Failed to navigate to chat');
-      });
-    } else {
-      message = 'Please specify a group name. Usage: /join <groupname> [private]';
-    }
+  const command = commandInput.value.trim();
+  
+  // Use the command parser
+  const result = await executeCommand(command);
+  
+  if (result) {
+    $q.notify({
+      message: result.message,
+      position: 'top',
+      timeout: 4000,
+      color: result.type === 'error' ? 'negative' : result.type === 'success' ? 'positive' : 'primary',
+      textColor: 'white',
+      classes: 'q-pa-md',
+      actions: [
+        {
+          label: '×',
+          color: 'white',
+          round: true,
+          handler: () => {},
+        },
+      ],
+    });
   } else {
-    switch (command) {
-      case '/help':
-        message =
-          'Available commands: /help, /join <groupname> [private], /leave, /users, /status, /clear';
-        break;
-      case '/leave':
-        groups.setSelected('');
-        message = 'You have left the current channel.';
-        break;
-      case '/users':
-        message =
-          'You need to be in a channel to see users. Use /join <groupname> to join a channel first.';
-        break;
-      case '/status':
-        message = 'Status: Online | Last seen: Now';
-        break;
-      case '/clear':
-        message =
-          'You need to be in a channel to clear history. Use /join <groupname> to join a channel first.';
-        break;
-      default:
-        message = `Unknown command: ${commandInput.value}. Type /help for available commands.`;
-    }
+    // Not a recognized command
+    $q.notify({
+      message: `Unknown command: ${command}. Type /help for available commands.`,
+      position: 'top',
+      timeout: 4000,
+      color: 'warning',
+      textColor: 'white',
+      classes: 'q-pa-md',
+    });
   }
-
-  $q.notify({
-    message: message,
-    position: 'top',
-    timeout: 4000,
-    color: 'primary',
-    textColor: 'white',
-    classes: 'q-pa-md',
-    actions: [
-      {
-        label: '×',
-        color: 'white',
-        round: true,
-        handler: () => {},
-      },
-    ],
-  });
 
   commandInput.value = '';
 }

@@ -1,105 +1,78 @@
 <template>
-  <q-page v-if="selectedGroup?.name" class="column col" style="height: calc(100dvh - 65px)">
+  <q-page v-if="selectedChannel" class="column col" style="height: calc(100dvh - 65px)">
+    <!-- Command result notification -->
+    <q-banner v-if="commandResult" :class="bannerClass" class="q-mx-md q-mt-sm" rounded>
+      <template v-slot:avatar>
+        <img :src="bannerIcon" alt="status" style="width: 24px; height: 24px; filter: brightness(0) invert(1);" />
+      </template>
+      {{ commandResult.message }}
+      <template v-slot:action>
+        <q-btn flat color="white" label="Dismiss" @click="commandResult = null" />
+      </template>
+    </q-banner>
+
     <q-scroll-area
-      ref="saRef"
+      ref="scrollAreaRef"
+      :key="scrollAreaKey"
       class="col"
       :thumb-style="{ display: 'none' }"
       :bar-style="{ display: 'none' }"
     >
-      <q-infinite-scroll @load="onLoad" :offset="250" :disable="!hasMoreMessages" reverse>
-        <!-- Loading indicator when waiting to load more messages -->
+      <q-infinite-scroll @load="onLoadMore" :offset="250" :disable="!hasMoreMessages" reverse>
         <template v-slot:loading>
           <div class="row justify-center q-my-md">
             <q-spinner color="primary" name="dots" size="40px" />
           </div>
         </template>
 
-        <!-- Chat messages -->
         <div class="q-px-md q-pt-md q-pb-lg">
-          <template v-if="selectedGroup?.name">
+          <!-- Messages -->
             <q-chat-message
-              v-for="(message, index) in messages"
-              :key="message.id || index"
-              :text="[formatMessage(message.text)]"
-              :sent="message.sent"
-              :name="message.name"
-              :avatar="message.avatar"
-              :bg-color="message.sent ? 'tertiary' : 'grey-4'"
-              :text-color="message.isPinged ? 'white' : message.sent ? 'white' : 'black'"
-              class="ping-message"
-            />
-            <q-chat-message
-              :text="['@Alice ahoj, ako sa máš?']"
-              :sent="false"
-              name="Anna"
-              avatar="https://cdn.quasar.dev/img/avatar2.jpg"
-              bg-color="grey-4"
-              text-color="primary"
-              class="ping-message"
-            />
-
-            <!-- Invite message example -->
-            <q-chat-message
-              :sent="false"
-              name="Admin"
-              avatar="https://cdn.quasar.dev/img/avatar1.jpg"
-              bg-color="green-2"
-              text-color="green-8"
-            >
-              <template #default>
-                <div class="row items-center justify-between full-width">
-                  <div class="col">
-                    <div class="text-weight-medium">Pozvánka do skupiny</div>
-                    <div class="text-caption text-grey-6 q-mr-sm">
-                      @Alice, tím „Developers" ťa pozýva, aby si sa pripojila! Klikni a pridaj sa.
-                    </div>
-                  </div>
-                  <div class="invite-badge">
-                    <q-icon name="img:src/assets/plus.svg" size="18px" class="q-mr-xs" />
-                    <span class="text-caption text-weight-medium">Invited</span>
-                  </div>
-                </div>
-              </template>
+            v-for="message in messages"
+            :key="message.id"
+            :sent="message.userId === currentUserId"
+            :name="message.author?.nickName ?? 'Unknown'"
+            :stamp="formatTime(message.createdAt)"
+            :bg-color="getMessageBgColor(message)"
+            :text-color="getMessageTextColor(message)"
+            class="message-item"
+          >
+            <div v-html="formatMessageContent(message.content, message.userId === currentUserId)" />
             </q-chat-message>
-
-            <!-- Typing indicator for the user who is typing, only shows when the user is typing -->
-            <q-chat-message
-              v-if="showTyping"
-              :sent="false"
-              name="John"
-              avatar="https://cdn.quasar.dev/img/avatar4.jpg"
-              bg-color="grey-4"
-            >
-              <template #default>
-                <span>
-                  Is typing
-                  <q-spinner-dots size="1rem" class="q-ml-none q-pl-none q-pt-xs" />
-                </span>
-              </template>
-            </q-chat-message>
-          </template>
         </div>
       </q-infinite-scroll>
     </q-scroll-area>
 
-    <!-- Input field and send button -->
+    <!-- Typing indicator -->
+    <div v-if="typingText" class="q-px-md q-py-xs text-grey-6 text-caption typing-indicator">
+      <q-spinner-dots size="16px" color="grey-6" class="q-mr-xs" />
+      {{ typingText }}
+    </div>
+
+    <!-- Input field -->
     <div
-      id="Input-field"
-      :class="{ 'q-pb-lg': !drw.isMini }"
-      class="row items-center q-px-md q-pb-md easy-out"
-      @mouseenter="onMouseEnter"
-      @mouseleave="onMouseLeave"
+      class="row items-center q-px-md q-pb-md q-pt-sm"
     >
       <q-input
         v-model="messageInput"
         rounded
         outlined
-        placeholder="Write a message"
+        :placeholder="inputPlaceholder"
         input-style="padding-left: 12px"
-        class="col q-pb-md q-pt-sm q-pl-sm q-pr-md"
-        @keyup.enter="sendMessage"
-        @click.stop
+        class="col q-mr-sm"
+        :loading="sending"
+        @keyup.enter="handleSend"
+        @update:model-value="handleTyping"
       >
+        <template #prepend>
+          <img 
+            v-if="isCommand" 
+            src="/src/assets/bolt_blue.svg" 
+            alt="command"
+            style="width: 18px; height: 18px;"
+            class="q-ml-sm"
+          />
+        </template>
         <template #append>
           <q-btn
             flat
@@ -107,16 +80,17 @@
             rounded
             size="md"
             class="q-pa-none"
-            icon="img:src/assets/EmojiIcon.svg"
-            alt="emoji"
-          />
+          >
+            <img src="src/assets/EmojiIcon.svg" alt="emoji" />
+          </q-btn>
         </template>
       </q-input>
       <q-btn
         rounded
-        class="bg-primary q-pa-md q-mx-xs q-mb-sm"
-        :disable="!messageInput.trim()"
-        @click="sendMessage"
+        class="bg-primary q-pa-md"
+        :disable="!messageInput.trim() || sending"
+        :loading="sending"
+        @click="handleSend"
       >
         <img src="/src/assets/Icon_sent.svg" style="transform: translate(-1px, 1px)" />
       </q-btn>
@@ -125,216 +99,242 @@
 </template>
 
 <script setup lang="ts">
-import { useScrollHandling, useAutoScroll } from '../composables/useScrollHandling';
-import { useGroupsStore } from 'src/stores/drawer/groups';
-import { useChatStore } from 'src/stores/chat/chat';
-import { computed, ref, watch, nextTick } from 'vue';
-import { storeToRefs } from 'pinia';
-import type { Message } from 'src/components/models';
-import { useDrawerStore } from 'src/stores/drawer/drawer';
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { QScrollArea } from 'quasar'
+import { useChannelsStore } from 'src/stores/channels/channels'
+import { useMessagesStore } from 'src/stores/messages/messages'
+import { useAuthStore } from 'src/stores/auth/auth'
+import { executeCommand, isCommand as checkIsCommand, type CommandResult } from 'src/services/commandParser'
+import type { Message } from 'src/lib/api'
 
-const drw = useDrawerStore();
-const groups = useGroupsStore();
-const chat = useChatStore();
+const channels = useChannelsStore()
+const messagesStore = useMessagesStore()
+const auth = useAuthStore()
 
-const { selectedId } = storeToRefs(groups);
-const selectedGroup = computed(() => groups.selected);
+const scrollAreaRef = ref<InstanceType<typeof QScrollArea> | null>(null)
+const messageInput = ref('')
+const sending = ref(false)
+const commandResult = ref<CommandResult | null>(null)
 
-const { saRef } = useAutoScroll(selectedId);
-const { onMouseEnter, onMouseLeave } = useScrollHandling('#Input-field');
+const selectedChannel = computed(() => channels.selected)
+const messages = computed(() => messagesStore.currentMessages)
+const hasMoreMessages = computed(() => messagesStore.hasMoreMessages)
+const currentUserId = computed(() => auth.currentUserId)
+const currentNickName = computed(() => auth.currentNickName)
 
-const messageInput = ref('');
+// Key to force re-render of scroll area when channel changes
+const scrollAreaKey = computed(() => `scroll-${channels.selectedId}-${messages.value.length > 0 ? 'loaded' : 'empty'}`)
 
-// Typing indicator for the user who is typing, only shows when the user is typing
-const showTyping = ref(false);
-const hasMoreMessages = ref(true);
-const currentPage = ref(1);
-const pageSize = 20;
+const isCommand = computed(() => checkIsCommand(messageInput.value))
 
-// Lokálny state pre načítané správy (infinite scroll)
-const loadedMessages = ref<Message[]>([]);
+// Typing indicator
+const typingText = computed(() => {
+  const typers = channels.typingUsers
+  if (typers.length === 0) return ''
+  if (typers.length === 1) return `${typers[0]} is typing...`
+  if (typers.length === 2) return `${typers[0]} and ${typers[1]} are typing...`
+  return `${typers[0]} and ${typers.length - 1} others are typing...`
+})
 
-// Použij lokálne načítané správy namiesto všetkých správ z store
-const messages = computed(() => loadedMessages.value);
+// Debounce typing notification
+let typingTimeout: ReturnType<typeof setTimeout> | null = null
 
-// Načítanie správ z chat store s pagináciou
-const loadMessages = async (page: number, size?: number): Promise<Message[]> => {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+function handleTyping() {
+  if (isCommand.value) return // Don't send typing for commands
+  
+  // Debounce: only send typing status every 3 seconds
+  if (!typingTimeout) {
+    void channels.sendTyping()
+    typingTimeout = setTimeout(() => {
+      typingTimeout = null
+    }, 3000)
+  }
+}
 
-  const allMessages = chat.messagesForSelected;
-  const loadSize = size || pageSize;
-  const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + loadSize;
+const inputPlaceholder = computed(() => {
+  if (isCommand.value) return 'Enter command...'
+  return 'Write a message or /help for commands'
+})
 
-  return allMessages.slice(startIndex, endIndex);
-};
+const bannerClass = computed(() => {
+  if (!commandResult.value) return ''
+  switch (commandResult.value.type) {
+    case 'success': return 'bg-positive text-white'
+    case 'error': return 'bg-negative text-white'
+    case 'info': return 'bg-info text-white'
+    default: return 'bg-grey-7 text-white'
+  }
+})
 
-// Infinite scroll handler
-const onLoad = async (index: number, done: (stop?: boolean) => void) => {
+const bannerIcon = computed(() => {
+  if (!commandResult.value) return '/src/assets/chat.svg'
+  switch (commandResult.value.type) {
+    case 'success': return '/src/assets/check.svg'
+    case 'error': return '/src/assets/close.svg'
+    case 'info': return '/src/assets/chat.svg'
+    default: return '/src/assets/chat.svg'
+  }
+})
+
+function formatTime(timestamp: string): string {
+  const date = new Date(timestamp)
+  const now = new Date()
+  const isToday = date.toDateString() === now.toDateString()
+  
+  if (isToday) {
+    return date.toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' })
+  }
+  return date.toLocaleDateString('sk-SK', { 
+    day: '2-digit', 
+    month: '2-digit',
+    hour: '2-digit', 
+    minute: '2-digit' 
+  })
+}
+
+function formatMessageContent(content: string, isOwnMessage: boolean): string {
+  // Highlight @mentions - use different color for own messages (white bg) vs others (blue)
+  const mentionClass = isOwnMessage ? 'mention-own' : 'mention-other'
+  return content.replace(/@(\w+)/g, `<strong class="${mentionClass}">@$1</strong>`)
+}
+
+function getMessageBgColor(message: Message): string {
+  const isMentioned = message.mentionedUsers?.includes(currentNickName.value ?? '')
+  
+  if (message.userId === currentUserId.value) {
+    return 'primary'
+  }
+  if (isMentioned) {
+    return 'amber-2'
+  }
+  return 'grey-3'
+}
+
+function getMessageTextColor(message: Message): string {
+  if (message.userId === currentUserId.value) {
+    return 'white'
+  }
+  return 'grey-9'
+}
+
+async function handleSend() {
+  const text = messageInput.value.trim()
+  if (!text || sending.value) return
+
+  sending.value = true
+  commandResult.value = null
+
   try {
-    const newMessages = await loadMessages(currentPage.value);
-
-    if (newMessages.length === 0) {
-      hasMoreMessages.value = false;
-      done(true);
-      return;
+    if (checkIsCommand(text)) {
+      const result = await executeCommand(text)
+      if (result) {
+        commandResult.value = result
+        // Auto-hide success messages after 3 seconds
+        if (result.type === 'success') {
+          setTimeout(() => {
+            if (commandResult.value === result) {
+              commandResult.value = null
+            }
+          }, 3000)
+        }
+      }
+    } else {
+      await messagesStore.sendMessage(text)
+      scrollToBottom()
     }
-
-    // Pridať nové správy do lokálneho state
-    loadedMessages.value = [...loadedMessages.value, ...newMessages];
-    currentPage.value++;
-
-    // Ak je menej správ ako pageSize, už nie sú ďalšie
-    if (newMessages.length < pageSize) {
-      hasMoreMessages.value = false;
-    }
-
-    done();
+    
+    messageInput.value = ''
   } catch (error) {
-    console.error('Error loading messages:', error);
-    done(true);
+    console.error('Error sending:', error)
+    commandResult.value = {
+      success: false,
+      message: 'Failed to send message',
+      type: 'error'
+    }
+  } finally {
+    sending.value = false
   }
-};
+}
 
-// Inicializácia prvých správ - okamžite bez oneskorenia
-const initializeMessages = () => {
-  // Načítať prvú stránku správ okamžite
-  const allMessages = chat.messagesForSelected;
-  const firstPageMessages = allMessages.slice(0, pageSize);
-
-  loadedMessages.value = firstPageMessages;
-  currentPage.value = 2; // Ďalšia stránka bude 2
-
-  // Ak je menej správ ako pageSize, už nie sú ďalšie
-  if (firstPageMessages.length < pageSize) {
-    hasMoreMessages.value = false;
+async function onLoadMore(index: number, done: (stop?: boolean) => void) {
+  if (!channels.selectedId) {
+    done(true)
+    return
   }
-};
 
-const formatMessage = (text: string) => {
-  // zvýrazni mená, ktoré boli pingnuté (napr. /ping John)
-  return text.replace(/\/ping\s+(\w+)/gi, (_, nick) => `@${nick}`);
-};
+  try {
+    await messagesStore.fetchMessages(channels.selectedId, true)
+    done(!hasMoreMessages.value)
+  } catch (error) {
+    console.error('Error loading more messages:', error)
+    done(true)
+  }
+}
 
-// Funkcia pre zobrazenie používateľov v paneli
-const displayUsersInPanel = () => {
-  window.dispatchEvent(new CustomEvent('show-users'));
-};
-
-// Odoslanie správy
-const sendMessage = async () => {
-  if (!messageInput.value.trim() || !selectedId.value) return;
-
-  const messageText = messageInput.value.trim();
-
-  // Skontroluj či je to /list príkaz
-  if (messageText === '/list') {
-    console.log('List of users');
-    // Zobraz používateľov v pravom paneli
-    displayUsersInPanel();
-  } else {
-    const msg = chat.addMessage(selectedId.value, messageText, true);
-
-    // zobraz ju hneď v lokálnom zozname
-    loadedMessages.value = [...loadedMessages.value, msg];
-
-    await nextTick();
-    const scrollTarget = saRef.value?.getScrollTarget();
+function scrollToBottom() {
+  setTimeout(() => {
+    const scrollTarget = scrollAreaRef.value?.getScrollTarget()
     if (scrollTarget) {
       scrollTarget.scrollTo({
         top: scrollTarget.scrollHeight,
-        behavior: 'smooth',
-      });
+        behavior: 'instant'
+      })
     }
+  }, 50)
+}
+
+// Watch for channel changes - scroll to bottom on initial load
+watch(() => channels.selectedId, async (newId) => {
+  if (newId) {
+    commandResult.value = null
+    await messagesStore.fetchMessages(newId)
+    messagesStore.setupRealtimeSubscription(newId)
+    
+    // Start typing indicator polling
+    channels.startTypingPolling()
+    
+    // Scroll to bottom after initial load (multiple attempts for Safari)
+    await nextTick()
+    setTimeout(scrollToBottom, 100)
+    setTimeout(scrollToBottom, 300)
+  } else {
+    channels.stopTypingPolling()
   }
+}, { immediate: true })
 
-  messageInput.value = '';
-};
+// Request notification permission on mount
+onMounted(() => {
+  void messagesStore.requestNotificationPermission()
+})
 
-// Inicializuju sa správy pri zmene skupiny
-watch(
-  selectedId,
-  () => {
-    if (selectedId.value) {
-      // Reset lokálneho state
-      loadedMessages.value = [];
-      currentPage.value = 1;
-      hasMoreMessages.value = true;
-      initializeMessages(); // Okamžite bez await
-
-      // Spusti Quasar typing indikátor po 3 sekundách
-      setTimeout(
-        () => {
-          showTyping.value = true;
-        },
-        Math.floor(Math.random() * 4000) + 1000,
-      );
-    }
-  },
-  { immediate: true },
-);
+// Cleanup on unmount
+onUnmounted(() => {
+  messagesStore.cleanup()
+  channels.stopTypingPolling()
+})
 </script>
 
 <style lang="scss" scoped>
-:deep(.q-scrollarea__container) {
-  overscroll-behavior: none;
-  -webkit-overflow-scrolling: touch;
+.message-item {
+  :deep(.q-message-text) {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  
+  :deep(.mention-own) {
+    color: #bbdefb; // Light blue on dark blue background
+    font-weight: bold;
+  }
+  
+  :deep(.mention-other) {
+    color: #1976d2; // Primary blue on light background
+    font-weight: bold;
+  }
 }
 
-:deep(.q-scrollarea__content) {
-  overscroll-behavior: none;
-}
-
-:deep(.q-scrollarea) {
-  overscroll-behavior: none;
-  -webkit-overflow-scrolling: auto;
-}
-.easy-out {
-  transition: all 0.2s ease-out;
-}
-.ping-message {
-  transition: background-color 0.4s ease;
-}
-
-.ping-message[style*='accent'],
-.ping-message[style*='orange-3'] {
-  animation: pingFlash 1s ease-out;
-}
-
-.invite-badge {
-  background: rgba(76, 175, 80, 0.1);
-  border: 1px solid rgba(76, 175, 80, 0.3);
-  border-radius: 12px;
-  padding: 4px 8px;
+.typing-indicator {
   display: flex;
   align-items: center;
-  color: #4caf50;
-}
-
-@keyframes pingFlash {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(255, 165, 0, 0.4);
-  }
-  50% {
-    transform: scale(1.02);
-    box-shadow: 0 0 20px 6px rgba(255, 165, 0, 0.5);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(255, 165, 0, 0);
-  }
-}
-
-@keyframes inviteGlow {
-  0% {
-    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 15px 4px rgba(76, 175, 80, 0.3);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
-  }
+  font-style: italic;
 }
 </style>

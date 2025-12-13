@@ -75,17 +75,18 @@
       </div>
       <q-separator inset color="white" style="opacity: 0.2" />
 
-      <!-- Notifications -->
+      <!-- Notifications - mentions only toggle -->
       <div class="flex justify-between q-pa-lg">
         <div class="flex">
-          <img :src="notificationsEnabled ? notifOn : notifOff" class="q-pl-sm" />
+          <img :src="mentionsOnly ? notifOn : notifOff" class="q-pl-sm" />
           <div class="column q-mx-md">
-            <p class="text-white text-h6 q-ma-none">Notifikacie</p>
-            <p class="text-grey-6 text-subtitle2 q-ma-none">{{ notificationStatusText }}</p>
+            <p class="text-white text-h6 q-ma-none">Notifikácie</p>
+            <p class="text-grey-6 text-subtitle2 q-ma-none">{{ mentionsOnly ? 'Len @mentions' : 'Všetky správy' }}</p>
           </div>
         </div>
         <q-toggle
-          v-model="notificationsEnabled"
+          :model-value="mentionsOnly"
+          @update:model-value="(val: boolean) => auth.updateNotificationSettings(val)"
           checked-icon="img:/src/assets/check.svg"
           color="green"
           unchecked-icon="img:/src/assets/close.svg"
@@ -111,31 +112,52 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
+import { computed } from 'vue';
 
 import { UserStatus } from 'src/components/models';
 // stores
 import { useUserStatusStore } from 'src/stores/user/userStatus';
-import { useNotificationStatusStore } from 'src/stores/user/notificationStatus';
+import { useChannelsStore } from 'src/stores/channels/channels';
+import { useMessagesStore } from 'src/stores/messages/messages';
+import { useAuthStore } from 'src/stores/auth/auth';
+import { setAuthToken } from 'src/lib/api';
 
 import notifOn from '../assets/notification.svg';
 import notifOff from '../assets/notificationDisabled.svg';
 
 const router = useRouter();
+const channels = useChannelsStore();
+const messages = useMessagesStore();
+const auth = useAuthStore();
+
+// Get notification setting from auth store
+const mentionsOnly = computed(() => auth.profile?.notify_mentions_only ?? false);
+
 function goBack() {
   if (window.history.length > 1) {
     router.back();
   } else {
-    // Ak nie, choď na default route
+    void router.push('/chat');
   }
 }
-async function handleLogout() {
-  await router.push('/login');
+
+function handleLogout() {
+  // Stop all polling
+  channels.reset();
+  messages.reset();
+  
+  // Clear auth token
+  setAuthToken(null);
+  
+  // Clear all storage
+  localStorage.clear();
+  sessionStorage.clear();
+  
+  // Force full page reload to login
+  window.location.href = window.location.origin + '/?_=' + Date.now() + '#/auth/login';
 }
 const userStatus = useUserStatusStore();
-const notificationStatus = useNotificationStatusStore();
 const { currentStatus, statusText } = storeToRefs(userStatus);
-const { notificationsEnabled, statusText: notificationStatusText } =
-  storeToRefs(notificationStatus);
 
 function setStatus(status: UserStatus) {
   userStatus.setStatus(status);

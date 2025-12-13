@@ -4,12 +4,11 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'home',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', name: 'indexPage', component: () => import('pages/IndexPage.vue') }],
+    redirect: '/chat'
   },
   {
     path: '/auth',
-    component: () => import('layouts/MainLayout.vue'),
+    component: () => import('layouts/AuthLayout.vue'),
     children: [
       { path: '', redirect: '/auth/login' },
       {
@@ -26,12 +25,13 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
-  // priateľské aliasy:
+  // Friendly aliases
   { path: '/login', redirect: '/auth/login' },
   { path: '/register', redirect: '/auth/register' },
   {
     path: '/chat',
     component: () => import('layouts/ChannelLayout.vue'),
+    meta: { requiresAuth: true },
     children: [
       { path: '', name: 'chat', component: () => import('pages/ChannelPage.vue') },
       {
@@ -45,10 +45,10 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/profile',
     component: () => import('layouts/MainLayout.vue'),
+    meta: { requiresAuth: true },
     children: [{ path: '', name: 'profile', component: () => import('pages/ProfilePage.vue') }],
   },
-  // Always leave this as last one,
-  // but you can also remove it
+  // 404
   {
     path: '/:catchAll(.*)*',
     name: 'not-found',

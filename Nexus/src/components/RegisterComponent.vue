@@ -11,16 +11,34 @@
     </div>
 
     <div class="register-form">
-      <q-input
-        v-model="registerData.name"
-        label="Name"
-        outlined
-        dark
-        class="q-mb-md"
-        :input-style="{ color: 'white', paddingLeft: '8px' }"
-        @blur="validateName"
-      />
-      <div v-if="nameError" class="error-message">{{ nameError }}</div>
+      <div class="row q-col-gutter-md">
+        <div class="col-6">
+          <q-input
+            v-model="registerData.firstName"
+            label="First Name"
+            outlined
+            dark
+            class="q-mb-md"
+            :input-style="{ color: 'white', paddingLeft: '8px' }"
+            :disable="loading"
+            @blur="validateFirstName"
+          />
+          <div v-if="firstNameError" class="error-message">{{ firstNameError }}</div>
+        </div>
+        <div class="col-6">
+          <q-input
+            v-model="registerData.lastName"
+            label="Last Name"
+            outlined
+            dark
+            class="q-mb-md"
+            :input-style="{ color: 'white', paddingLeft: '8px' }"
+            :disable="loading"
+            @blur="validateLastName"
+          />
+          <div v-if="lastNameError" class="error-message">{{ lastNameError }}</div>
+        </div>
+      </div>
 
       <q-input
         v-model="registerData.email"
@@ -30,18 +48,20 @@
         dark
         class="q-mb-md"
         :input-style="{ color: 'white', paddingLeft: '8px' }"
+        :disable="loading"
         @blur="validateEmail"
       />
       <div v-if="emailError" class="error-message">{{ emailError }}</div>
 
       <q-input
-        v-model="registerData.nickname"
+        v-model="registerData.nickName"
         label="Nickname"
         type="text"
         outlined
         dark
         class="q-mb-md"
         :input-style="{ color: 'white', paddingLeft: '8px' }"
+        :disable="loading"
         @blur="validateNickname"
       />
       <div v-if="nicknameError" class="error-message">{{ nicknameError }}</div>
@@ -54,22 +74,28 @@
         dark
         class="q-mb-md"
         :input-style="{ color: 'white', paddingLeft: '8px' }"
+        :disable="loading"
         @blur="validatePassword"
+        @keyup.enter="handleRegister"
       />
       <div v-if="passwordError" class="error-message">{{ passwordError }}</div>
+
+      <div v-if="generalError" class="error-message q-mb-md">{{ generalError }}</div>
 
       <q-btn
         color="primary"
         label="Register"
         class="full-width q-mb-md q-py-sm"
         size="md"
+        :loading="loading"
+        :disable="loading"
         @click="handleRegister"
       />
 
       <div class="text-center">
         <span style="color: rgba(255, 255, 255, 0.8)">Already have an account? </span>
         <span class="account-link text-white cursor-pointer q-pl-xs" @click="switchToLogin"
-          >Sign Up!</span
+          >Sign In!</span
         >
       </div>
     </div>
@@ -79,29 +105,44 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from 'src/stores/auth/auth';
 
 const router = useRouter();
+const auth = useAuthStore();
+
 const registerData = ref({
-  nickname: '',
-  name: '',
+  firstName: '',
+  lastName: '',
+  nickName: '',
   email: '',
   password: '',
-  // confirmPassword: '',
 });
 
+const firstNameError = ref('');
+const lastNameError = ref('');
 const nicknameError = ref('');
-const nameError = ref('');
 const emailError = ref('');
 const passwordError = ref('');
-// const confirmPasswordError = ref('');
+const generalError = ref('');
+const loading = ref(false);
 
-function validateName() {
-  if (!registerData.value.name) {
-    nameError.value = 'Name is required';
-  } else if (registerData.value.name.length < 2) {
-    nameError.value = 'Name must be at least 2 characters';
+function validateFirstName() {
+  if (!registerData.value.firstName) {
+    firstNameError.value = 'First name is required';
+  } else if (registerData.value.firstName.length < 2) {
+    firstNameError.value = 'First name must be at least 2 characters';
   } else {
-    nameError.value = '';
+    firstNameError.value = '';
+  }
+}
+
+function validateLastName() {
+  if (!registerData.value.lastName) {
+    lastNameError.value = 'Last name is required';
+  } else if (registerData.value.lastName.length < 2) {
+    lastNameError.value = 'Last name must be at least 2 characters';
+  } else {
+    lastNameError.value = '';
   }
 }
 
@@ -114,11 +155,14 @@ function validateEmail() {
     emailError.value = '';
   }
 }
+
 function validateNickname() {
-  if (!registerData.value.nickname) {
+  if (!registerData.value.nickName) {
     nicknameError.value = 'Nickname is required';
-  } else if (registerData.value.nickname.length < 2) {
+  } else if (registerData.value.nickName.length < 3) {
     nicknameError.value = 'Nickname must be at least 3 characters';
+  } else if (!/^[a-zA-Z0-9_]+$/.test(registerData.value.nickName)) {
+    nicknameError.value = 'Nickname can only contain letters, numbers and underscores';
   } else {
     nicknameError.value = '';
   }
@@ -134,47 +178,64 @@ function validatePassword() {
   }
 }
 
-// function validateConfirmPassword() {
-//   if (!registerData.value.confirmPassword) {
-//     confirmPasswordError.value = 'Please confirm your password';
-//   } else if (registerData.value.password !== registerData.value.confirmPassword) {
-//     confirmPasswordError.value = 'Passwords do not match';
-//   } else {
-//     confirmPasswordError.value = '';
-//   }
-// }
-
 function switchToLogin() {
   router.push('/auth/login').catch(() => {
     console.error('Failed to navigate to login');
   });
 }
 
-function handleRegister() {
-  nameError.value = '';
+async function handleRegister() {
+  firstNameError.value = '';
+  lastNameError.value = '';
   emailError.value = '';
   nicknameError.value = '';
   passwordError.value = '';
-  // confirmPasswordError.value = '';
-  validateName();
+  generalError.value = '';
+
+  validateFirstName();
+  validateLastName();
   validateEmail();
   validateNickname();
   validatePassword();
-  // validateConfirmPassword();
 
   if (
-    nameError.value ||
+    firstNameError.value ||
+    lastNameError.value ||
     emailError.value ||
     nicknameError.value ||
     passwordError.value
-    // || confirmPasswordError.value
   ) {
     return;
   }
 
-  router.push('/chat').catch(() => {
-    console.error('Failed to navigate to chat');
-  });
+  loading.value = true;
+
+  try {
+    await auth.register(
+      registerData.value.email,
+      registerData.value.password,
+      registerData.value.firstName,
+      registerData.value.lastName,
+      registerData.value.nickName
+    );
+    router.push('/chat').catch(() => {
+      console.error('Failed to navigate to chat');
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message.includes('nickname') || error.message.includes('nick_name')) {
+        nicknameError.value = 'This nickname is already taken';
+      } else if (error.message.includes('email')) {
+        emailError.value = 'This email is already registered';
+      } else {
+        generalError.value = error.message;
+      }
+    } else {
+      generalError.value = 'Registration failed. Please try again.';
+    }
+  } finally {
+    loading.value = false;
+  }
 }
 </script>
 
@@ -182,7 +243,7 @@ function handleRegister() {
 @import '../css/index.scss';
 
 .register-container {
-  max-width: 400px;
+  max-width: 450px;
   width: 100%;
   padding: 2rem;
 }

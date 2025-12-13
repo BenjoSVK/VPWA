@@ -1,102 +1,188 @@
 <template>
   <q-list class="column">
+    <!-- Loading state -->
+    <div v-if="channels.loading" class="q-pa-md text-center">
+      <q-spinner color="white" size="24px" />
+    </div>
+
+    <!-- Channel list -->
     <q-btn
-      v-for="g in sortedGroups"
-      @click="groups.setSelected(g.id)"
+      v-for="channel in sortedChannels"
+      :key="channel.id"
+      @click="selectChannel(channel)"
       align="left"
-      :key="g.id"
       flat
-      :active="groups.selectedId === g.id"
+      :active="channels.selectedId === channel.id"
       class="q-my-xs border-rad"
       size="md"
       :class="[
         drw.isMini ? 'q-mx-md flex items-center' : 'q-mx-lg',
-        groups.selectedId === g.id ? 'active-group' : 'inactive-group',
+        channels.selectedId === channel.id ? 'active-group' : 'inactive-group',
+        channel.isInvited ? 'invited-channel' : ''
       ]"
     >
       <template #default>
         <div class="row items-center full-width">
-          <q-icon v-if="g.private === true && !drw.isMini" size="18px" class="q-mr-sm">
-            <img src="../assets/Lock.svg" alt="group icon" />
-            <!-- optional style for private group icon -->
-            <!-- style="
-                filter: brightness(0) saturate(100%) invert(48%) sepia(79%) saturate(2476%)
-                  hue-rotate(346deg) brightness(118%) contrast(119%);
-              " -->
+          <!-- Channel type icon -->
+          <q-icon v-if="channel.isPrivate && !drw.isMini" size="18px" class="q-mr-sm">
+            <img src="../assets/Lock.svg" alt="private" />
           </q-icon>
           <q-icon v-else-if="!drw.isMini" size="18px" class="q-mr-sm">
             <img
               src="../assets/public.svg"
-              alt="group icon"
+              alt="public"
               style="filter: brightness(0) invert(1)"
             />
           </q-icon>
-          <span v-if="!drw.isMini" class="text-weight-medium">
-            {{ g.name ?? 'Unknown' }}
+
+          <!-- Channel name -->
+          <span v-if="!drw.isMini" class="text-weight-medium ellipsis" style="max-width: 180px">
+            {{ channel.name }}
           </span>
           <span v-else class="text-weight-medium">
-            {{ g.name?.[0] ?? '•' }}
+            {{ channel.name?.[0]?.toUpperCase() ?? '#' }}
           </span>
 
-          <!-- Invited badge for Developers channel -->
+          <!-- Invited badge -->
           <div
-            v-if="g.name === 'Developers Hub' && !drw.isMini"
+            v-if="channel.isInvited && !drw.isMini"
             class="invite-badge q-ml-auto q-mr-sm"
           >
             <span class="text-caption text-weight-medium">Invited</span>
           </div>
 
+          <!-- Admin badge -->
           <q-icon
-            v-if="groups.selectedId === g.id && !drw.isMini"
+            v-else-if="channel.isAdmin && !drw.isMini"
+            name="img:src/assets/star.svg"
+            size="14px"
+            class="q-ml-auto q-mr-sm"
+          >
+            <q-tooltip>You are the admin</q-tooltip>
+          </q-icon>
+
+          <!-- Leave/Close button -->
+          <q-icon
+            v-if="channels.selectedId === channel.id && !drw.isMini && !channel.isInvited"
             name="img:src/assets/close.svg"
             size="18px"
-            class="q-ml-auto"
-            @click.stop="groups.removeGroup(g.id)"
+            class="q-ml-auto cursor-pointer"
             style="filter: brightness(0) invert(1) opacity(0.5)"
+            @click.stop="handleLeaveChannel(channel)"
           />
         </div>
       </template>
     </q-btn>
   </q-list>
+
+  <!-- Confirm leave dialog -->
+  <q-dialog v-model="showLeaveDialog">
+    <q-card style="min-width: 300px; border-radius: 16px">
+      <q-card-section class="row items-center">
+        <img src="/src/assets/shield.svg" alt="warning" style="width: 24px; height: 24px;" class="q-mr-sm" />
+        <span class="text-h6">{{ leaveDialogTitle }}</span>
+      </q-card-section>
+      <q-card-section>
+        {{ leaveDialogMessage }}
+      </q-card-section>
+      <q-card-actions align="right">
+        <q-btn flat label="Cancel" v-close-popup />
+        <q-btn 
+          flat 
+          :label="channelToLeave?.isAdmin ? 'Delete' : 'Leave'" 
+          color="negative" 
+          @click="confirmLeave" 
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
+
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useDrawerStore } from 'src/stores/drawer/drawer';
-import { useGroupsStore } from '../stores/drawer/groups';
-const sortedGroups = computed(() => {
-  if (!groups.groups) return [];
+import { useChannelsStore } from 'src/stores/channels/channels';
+import type { Channel } from 'src/lib/api';
 
-  return [...groups.groups].sort((a, b) => {
-    // Developers Hub je vždy na vrchu
-    if (a.name === 'Developers Hub') return -1;
-    if (b.name === 'Developers Hub') return 1;
+const drw = useDrawerStore();
+const channels = useChannelsStore();
 
-    // Potom vybraný kanál
-    if (a.id === groups.selectedId) return -1;
-    if (b.id === groups.selectedId) return 1;
+const showLeaveDialog = ref(false);
+const channelToLeave = ref<Channel | null>(null);
 
-    // Ostatné kanály podľa abecedy
+const sortedChannels = computed(() => {
+  const list = channels.sortedChannels;
+  
+  return [...list].sort((a, b) => {
+    // Invited channels first
+    if (a.isInvited && !b.isInvited) return -1;
+    if (!a.isInvited && b.isInvited) return 1;
+    
+    // Then selected channel
+    if (a.id === channels.selectedId) return -1;
+    if (b.id === channels.selectedId) return 1;
+    
+    // Then alphabetically
     return a.name.localeCompare(b.name);
   });
 });
-const drw = useDrawerStore();
-const groups = useGroupsStore();
+
+const leaveDialogTitle = computed(() => {
+  if (!channelToLeave.value) return '';
+  return channelToLeave.value.isAdmin ? 'Delete Channel?' : 'Leave Channel?';
+});
+
+const leaveDialogMessage = computed(() => {
+  if (!channelToLeave.value) return '';
+  if (channelToLeave.value.isAdmin) {
+    return `Are you sure you want to delete "${channelToLeave.value.name}"? This will remove the channel and all messages for all members.`;
+  }
+  return `Are you sure you want to leave "${channelToLeave.value.name}"?`;
+});
+
+async function selectChannel(channel: Channel) {
+  if (channel.isInvited) {
+    // Accept invitation
+    await channels.joinChannel(channel.name);
+  }
+  channels.setSelected(channel.id);
+}
+
+function handleLeaveChannel(channel: Channel) {
+  channelToLeave.value = channel;
+  showLeaveDialog.value = true;
+}
+
+async function confirmLeave() {
+  if (!channelToLeave.value) return;
+  
+  if (channelToLeave.value.isAdmin) {
+    await channels.deleteChannel();
+  } else {
+    await channels.leaveChannel();
+  }
+  
+  showLeaveDialog.value = false;
+  channelToLeave.value = null;
+}
 </script>
+
 <style lang="scss" scoped>
 .active-group {
   background-color: rgba(111, 178, 255, 0.399);
   color: rgba(255, 255, 255, 0.95);
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .inactive-group {
   background-color: transparent;
   color: rgba(255, 255, 255, 0.5);
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.invited-channel {
+  border-left: 3px solid #4caf50;
+  animation: inviteGlow 2s ease-in-out infinite;
 }
 
 .invite-badge {
@@ -112,8 +198,7 @@ const groups = useGroupsStore();
 }
 
 @keyframes invitePulse {
-  0%,
-  100% {
+  0%, 100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -121,5 +206,20 @@ const groups = useGroupsStore();
     opacity: 0.8;
     transform: scale(1.05);
   }
+}
+
+@keyframes inviteGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+  }
+  50% {
+    box-shadow: 0 0 8px 2px rgba(76, 175, 80, 0.3);
+  }
+}
+
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>
