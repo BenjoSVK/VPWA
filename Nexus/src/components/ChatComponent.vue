@@ -18,7 +18,7 @@
       :thumb-style="{ display: 'none' }"
       :bar-style="{ display: 'none' }"
     >
-      <q-infinite-scroll @load="onLoadMore" :offset="250" :disable="!hasMoreMessages" reverse>
+      <q-infinite-scroll @load="onLoadMore" :offset="PAGINATION.INFINITE_SCROLL_OFFSET" :disable="!hasMoreMessages" reverse>
         <template v-slot:loading>
           <div class="row justify-center q-my-md">
             <q-spinner color="primary" name="dots" size="40px" />
@@ -46,8 +46,34 @@
     <!-- Typing indicator -->
     <div v-if="typingText" class="q-px-md q-py-xs text-grey-6 text-caption typing-indicator">
       <q-spinner-dots size="16px" color="grey-6" class="q-mr-xs" />
-      {{ typingText }}
+      <span>{{ typingText }}</span>
+      <span
+        v-for="typer in channels.typingUsers"
+        :key="typer"
+        class="text-primary q-ml-sm cursor-pointer"
+        style="text-decoration: underline;"
+        @click="showDraftPreview(typer)"
+      >
+        (view {{ typer }}'s draft)
+      </span>
     </div>
+
+    <!-- Draft preview dialog -->
+    <q-dialog v-model="showDraftDialog" @hide="closeDraftDialog">
+      <q-card style="min-width: 400px">
+        <q-card-section>
+          <div class="text-h6">{{ draftUserNickName }} is writing...</div>
+        </q-card-section>
+        <q-card-section>
+          <div class="text-body1" style="min-height: 60px; white-space: pre-wrap; word-break: break-word;">
+            {{ draftContent || '...' }}
+          </div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="Close" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
     <!-- Input field -->
     <div
@@ -104,17 +130,26 @@ import { QScrollArea } from 'quasar'
 import { useChannelsStore } from 'src/stores/channels/channels'
 import { useMessagesStore } from 'src/stores/messages/messages'
 import { useAuthStore } from 'src/stores/auth/auth'
+import { useUserStatusStore } from 'src/stores/user/userStatus'
 import { executeCommand, isCommand as checkIsCommand, type CommandResult } from 'src/services/commandParser'
 import type { Message } from 'src/lib/api'
+import { TIMEOUTS, PAGINATION } from 'src/lib/constants'
+import { channelsApi } from 'src/lib/api'
+import { UserStatus } from 'src/components/models'
 
 const channels = useChannelsStore()
 const messagesStore = useMessagesStore()
 const auth = useAuthStore()
+const userStatus = useUserStatusStore()
 
 const scrollAreaRef = ref<InstanceType<typeof QScrollArea> | null>(null)
 const messageInput = ref('')
 const sending = ref(false)
 const commandResult = ref<CommandResult | null>(null)
+const showDraftDialog = ref(false)
+const draftUserNickName = ref('')
+const draftContent = ref('')
+let draftPollingInterval: ReturnType<typeof setInterval> | null = null
 
 const selectedChannel = computed(() => channels.selected)
 const messages = computed(() => messagesStore.currentMessages)
@@ -122,12 +157,10 @@ const hasMoreMessages = computed(() => messagesStore.hasMoreMessages)
 const currentUserId = computed(() => auth.currentUserId)
 const currentNickName = computed(() => auth.currentNickName)
 
-// Key to force re-render of scroll area when channel changes
 const scrollAreaKey = computed(() => `scroll-${channels.selectedId}-${messages.value.length > 0 ? 'loaded' : 'empty'}`)
 
 const isCommand = computed(() => checkIsCommand(messageInput.value))
 
-// Typing indicator
 const typingText = computed(() => {
   const typers = channels.typingUsers
   if (typers.length === 0) return ''
@@ -136,18 +169,72 @@ const typingText = computed(() => {
   return `${typers[0]} and ${typers.length - 1} others are typing...`
 })
 
-// Debounce typing notification
 let typingTimeout: ReturnType<typeof setTimeout> | null = null
+let draftTimeout: ReturnType<typeof setTimeout> | null = null
 
 function handleTyping() {
-  if (isCommand.value) return // Don't send typing for commands
-  
-  // Debounce: only send typing status every 3 seconds
+  if (isCommand.value) return
+
   if (!typingTimeout) {
     void channels.sendTyping()
     typingTimeout = setTimeout(() => {
       typingTimeout = null
-    }, 3000)
+    }, TIMEOUTS.TYPING_DEBOUNCE)
+  }
+
+  if (draftTimeout) {
+    clearTimeout(draftTimeout)
+  }
+
+  draftTimeout = setTimeout(() => {
+    if (channels.selectedId && messageInput.value.trim()) {
+      void channelsApi.setDraft(channels.selectedId, messageInput.value)
+    }
+  }, 1000)
+}
+
+async function showDraftPreview(nickName: string) {
+  if (!channels.selectedId) return
+
+  draftUserNickName.value = nickName
+  showDraftDialog.value = true
+
+  const pollDraft = async () => {
+    try {
+      const response = await channelsApi.getDraft(channels.selectedId!, nickName)
+      draftContent.value = response.draft || ''
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching draft:', error)
+      }
+    }
+  }
+
+  await pollDraft()
+
+  if (draftPollingInterval) {
+    clearInterval(draftPollingInterval)
+  }
+
+  draftPollingInterval = setInterval(() => {
+    void pollDraft()
+  }, 1000)
+}
+
+function closeDraftDialog() {
+  showDraftDialog.value = false
+  draftContent.value = ''
+  draftUserNickName.value = ''
+  if (draftPollingInterval) {
+    clearInterval(draftPollingInterval)
+    draftPollingInterval = null
+  }
+}
+
+function clearTypingTimeout() {
+  if (typingTimeout) {
+    clearTimeout(typingTimeout)
+    typingTimeout = null
   }
 }
 
@@ -229,26 +316,28 @@ async function handleSend() {
       const result = await executeCommand(text)
       if (result) {
         commandResult.value = result
-        // Auto-hide success messages after 3 seconds
         if (result.type === 'success') {
           setTimeout(() => {
             if (commandResult.value === result) {
               commandResult.value = null
             }
-          }, 3000)
+          }, TIMEOUTS.SUCCESS_MESSAGE_HIDE)
         }
       }
     } else {
+      if (channels.selectedId) {
+        await channelsApi.setDraft(channels.selectedId, '')
+      }
       await messagesStore.sendMessage(text)
       scrollToBottom()
     }
     
     messageInput.value = ''
   } catch (error) {
-    console.error('Error sending:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Failed to send message'
     commandResult.value = {
       success: false,
-      message: 'Failed to send message',
+      message: errorMessage,
       type: 'error'
     }
   } finally {
@@ -266,13 +355,15 @@ async function onLoadMore(index: number, done: (stop?: boolean) => void) {
     await messagesStore.fetchMessages(channels.selectedId, true)
     done(!hasMoreMessages.value)
   } catch (error) {
-    console.error('Error loading more messages:', error)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error loading more messages:', error)
+    }
     done(true)
   }
 }
 
 function scrollToBottom() {
-  setTimeout(() => {
+  void nextTick(() => {
     const scrollTarget = scrollAreaRef.value?.getScrollTarget()
     if (scrollTarget) {
       scrollTarget.scrollTo({
@@ -280,35 +371,46 @@ function scrollToBottom() {
         behavior: 'instant'
       })
     }
-  }, 50)
+  })
 }
 
-// Watch for channel changes - scroll to bottom on initial load
 watch(() => channels.selectedId, async (newId) => {
   if (newId) {
     commandResult.value = null
+    closeDraftDialog()
     await messagesStore.fetchMessages(newId)
     messagesStore.setupRealtimeSubscription(newId)
-    
-    // Start typing indicator polling
     channels.startTypingPolling()
-    
-    // Scroll to bottom after initial load (multiple attempts for Safari)
-    await nextTick()
-    setTimeout(scrollToBottom, 100)
-    setTimeout(scrollToBottom, 300)
+    scrollToBottom()
   } else {
     channels.stopTypingPolling()
+    closeDraftDialog()
   }
 }, { immediate: true })
 
-// Request notification permission on mount
+watch(() => userStatus.currentStatus, async (newStatus, oldStatus) => {
+  if (oldStatus === UserStatus.Offline && newStatus === UserStatus.Online) {
+    await channels.fetchChannels()
+    if (channels.selectedId) {
+      await messagesStore.fetchMessages(channels.selectedId)
+      messagesStore.setupRealtimeSubscription(channels.selectedId)
+    }
+  }
+})
+
 onMounted(() => {
   void messagesStore.requestNotificationPermission()
 })
 
-// Cleanup on unmount
 onUnmounted(() => {
+  clearTypingTimeout()
+  if (draftTimeout) {
+    clearTimeout(draftTimeout)
+  }
+  if (draftPollingInterval) {
+    clearInterval(draftPollingInterval)
+  }
+  closeDraftDialog()
   messagesStore.cleanup()
   channels.stopTypingPolling()
 })
@@ -322,12 +424,12 @@ onUnmounted(() => {
   }
   
   :deep(.mention-own) {
-    color: #bbdefb; // Light blue on dark blue background
+    color: #bbdefb;
     font-weight: bold;
   }
   
   :deep(.mention-other) {
-    color: #1976d2; // Primary blue on light background
+    color: #1976d2;
     font-weight: bold;
   }
 }

@@ -1,0 +1,20 @@
+export const POLLING_INTERVALS = {
+  MESSAGES: 3000,
+  CHANNELS: 5000,
+  TYPING: 2000,
+} as const
+
+export const TIMEOUTS = {
+  TYPING_DEBOUNCE: 3000,
+  USERS_LIST_HIDE: 10000,
+  SUCCESS_MESSAGE_HIDE: 3000,
+} as const
+
+export const PAGINATION = {
+  MESSAGES_PER_PAGE: 50,
+  INFINITE_SCROLL_OFFSET: 250,
+} as const
+
+export const NOTIFICATION = {
+  MAX_LENGTH: 100,
+} as const

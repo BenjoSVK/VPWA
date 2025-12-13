@@ -115,7 +115,6 @@ import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 
 import { UserStatus } from 'src/components/models';
-// stores
 import { useUserStatusStore } from 'src/stores/user/userStatus';
 import { useChannelsStore } from 'src/stores/channels/channels';
 import { useMessagesStore } from 'src/stores/messages/messages';
@@ -159,8 +158,16 @@ function handleLogout() {
 const userStatus = useUserStatusStore();
 const { currentStatus, statusText } = storeToRefs(userStatus);
 
-function setStatus(status: UserStatus) {
-  userStatus.setStatus(status);
+async function setStatus(status: UserStatus) {
+  await userStatus.setStatus(status);
+  
+  if (status === UserStatus.Online && userStatus.isOffline) {
+    await channels.fetchChannels();
+    if (channels.selectedId) {
+      await messages.fetchMessages(channels.selectedId);
+      messages.setupRealtimeSubscription(channels.selectedId);
+    }
+  }
 }
 </script>
 

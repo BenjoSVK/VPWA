@@ -1,14 +1,9 @@
-// Types for the Nexus application - now using AdonisJS backend
-// Re-export types from api.ts for backwards compatibility
-
 export type {
   User as Profile,
   Channel,
   ChannelMember,
   Message
 } from './api'
-
-// Extended types for frontend use
 export interface ChannelWithMembership {
   id: number
   name: string
@@ -46,6 +41,6 @@ export interface MessageWithAuthor {
     firstName: string
     lastName: string
     nickName: string
-    nick_name?: string // For backwards compatibility
+    nick_name?: string
   } | null
 }

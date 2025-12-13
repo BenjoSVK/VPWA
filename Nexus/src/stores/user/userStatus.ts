@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { UserStatus } from 'src/components/models';
+import { authApi } from 'src/lib/api';
 
 export const useUserStatusStore = defineStore('userStatus', {
   state: () => ({
@@ -25,17 +26,33 @@ export const useUserStatusStore = defineStore('userStatus', {
   },
 
   actions: {
-    setStatus(status: UserStatus) {
+    async setStatus(status: UserStatus) {
       this.currentStatus = status;
+      try {
+        await authApi.updateStatus(status);
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error updating status:', error);
+        }
+      }
     },
-    setOnline() {
-      this.currentStatus = UserStatus.Online;
+    async setOnline() {
+      await this.setStatus(UserStatus.Online);
     },
-    setOffline() {
-      this.currentStatus = UserStatus.Offline;
+    async setOffline() {
+      await this.setStatus(UserStatus.Offline);
     },
-    setDnd() {
-      this.currentStatus = UserStatus.Dnd;
+    async setDnd() {
+      await this.setStatus(UserStatus.Dnd);
+    },
+    setStatusFromBackend(status: string) {
+      if (status === 'Online') {
+        this.currentStatus = UserStatus.Online;
+      } else if (status === 'Offline') {
+        this.currentStatus = UserStatus.Offline;
+      } else if (status === 'Do Not Disturb') {
+        this.currentStatus = UserStatus.Dnd;
+      }
     },
   },
 });

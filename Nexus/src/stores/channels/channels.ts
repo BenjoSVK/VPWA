@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import { channelsApi, type Channel, type ChannelMember } from 'src/lib/api'
 import { useAuthStore } from '../auth/auth'
+import { POLLING_INTERVALS, TIMEOUTS } from 'src/lib/constants'
+import { getErrorMessage } from 'src/lib/errorHandler'
 
 interface ChannelsState {
   channels: Channel[]
@@ -62,7 +64,9 @@ export const useChannelsStore = defineStore('channels', {
       try {
         this.channels = await channelsApi.list()
       } catch (error) {
-        console.error('Error fetching channels:', error)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching channels:', error)
+        }
       } finally {
         this.loading = false
       }
@@ -71,10 +75,15 @@ export const useChannelsStore = defineStore('channels', {
     async fetchMembers(channelId: number) {
       try {
         const members = await channelsApi.members(channelId)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Fetched members:', members.map(m => ({ nickName: m.user?.nickName, status: m.user?.status })))
+        }
         this.members.set(channelId, members)
         return members
       } catch (error) {
-        console.error('Error fetching members:', error)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching members:', error)
+        }
         return []
       }
     },
@@ -98,8 +107,7 @@ export const useChannelsStore = defineStore('channels', {
         this.setSelected(channel.id)
         return { success: true }
       } catch (error) {
-        console.error('Error joining channel:', error)
-        return { success: false, error: error instanceof Error ? error.message : 'Failed to join channel' }
+        return { success: false, error: getErrorMessage(error) || 'Failed to join channel' }
       }
     },
 
@@ -117,8 +125,7 @@ export const useChannelsStore = defineStore('channels', {
         await this.fetchMembers(this.selectedId)
         return { success: true }
       } catch (error) {
-        console.error('Error inviting user:', error)
-        return { success: false, error: error instanceof Error ? error.message : 'Failed to invite user' }
+        return { success: false, error: getErrorMessage(error) || 'Failed to invite user' }
       }
     },
 
@@ -132,8 +139,7 @@ export const useChannelsStore = defineStore('channels', {
         await this.fetchMembers(this.selectedId)
         return { success: true }
       } catch (error) {
-        console.error('Error revoking user:', error)
-        return { success: false, error: error instanceof Error ? error.message : 'Failed to revoke user' }
+        return { success: false, error: getErrorMessage(error) || 'Failed to revoke user' }
       }
     },
 
@@ -147,8 +153,7 @@ export const useChannelsStore = defineStore('channels', {
         await this.fetchMembers(this.selectedId)
         return { success: true }
       } catch (error) {
-        console.error('Error kicking user:', error)
-        return { success: false, error: error instanceof Error ? error.message : 'Failed to kick user' }
+        return { success: false, error: getErrorMessage(error) || 'Failed to kick user' }
       }
     },
 
@@ -163,8 +168,7 @@ export const useChannelsStore = defineStore('channels', {
         await this.fetchChannels()
         return { success: true }
       } catch (error) {
-        console.error('Error leaving channel:', error)
-        return { success: false, error: error instanceof Error ? error.message : 'Failed to leave channel' }
+        return { success: false, error: getErrorMessage(error) || 'Failed to leave channel' }
       }
     },
 
@@ -179,19 +183,18 @@ export const useChannelsStore = defineStore('channels', {
         await this.fetchChannels()
         return { success: true }
       } catch (error) {
-        console.error('Error deleting channel:', error)
-        return { success: false, error: error instanceof Error ? error.message : 'Failed to delete channel' }
+        return { success: false, error: getErrorMessage(error) || 'Failed to delete channel' }
       }
     },
 
     setupRealtimeSubscription() {
-      // Stop existing polling
       this.stopPolling()
-      
-      // Poll for channel updates every 5 seconds
+
+      void this.fetchChannels()
+
       this.pollingInterval = setInterval(() => {
         void this.fetchChannels()
-      }, 5000)
+      }, POLLING_INTERVALS.CHANNELS)
     },
 
     stopPolling() {
@@ -212,20 +215,21 @@ export const useChannelsStore = defineStore('channels', {
       this.typingUsers = []
     },
 
-    showUsersListTemporarily() {
-      // Clear existing timeout
+    async showUsersListTemporarily() {
       if (this.usersListTimeout) {
         clearTimeout(this.usersListTimeout)
       }
       
-      // Show the list
       this.showUsersList = true
       
-      // Hide after 10 seconds
+      if (this.selectedId) {
+        await this.fetchMembers(this.selectedId)
+      }
+      
       this.usersListTimeout = setTimeout(() => {
         this.showUsersList = false
         this.usersListTimeout = null
-      }, 10000)
+      }, TIMEOUTS.USERS_LIST_HIDE)
     },
 
     hideUsersList() {
@@ -236,13 +240,14 @@ export const useChannelsStore = defineStore('channels', {
       this.showUsersList = false
     },
 
-    // Typing indicator methods
     async sendTyping() {
       if (!this.selectedId) return
       try {
         await channelsApi.setTyping(this.selectedId)
-      } catch {
-        // Silently ignore typing errors
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.debug('Typing indicator error:', error)
+        }
       }
     },
 
@@ -251,17 +256,19 @@ export const useChannelsStore = defineStore('channels', {
       try {
         const response = await channelsApi.getTyping(this.selectedId)
         this.typingUsers = response.typing
-      } catch {
-        // Silently ignore
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.debug('Typing fetch error:', error)
+        }
       }
     },
 
     startTypingPolling() {
       this.stopTypingPolling()
-      // Poll for typing users every 2 seconds
+
       this.typingInterval = setInterval(() => {
         void this.fetchTypingUsers()
-      }, 2000)
+      }, POLLING_INTERVALS.TYPING)
     },
 
     stopTypingPolling() {

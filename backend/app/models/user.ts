@@ -36,6 +36,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare notifyMentionsOnly: boolean
 
+  @column()
+  declare status: string
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

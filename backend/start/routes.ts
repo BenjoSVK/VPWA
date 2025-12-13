@@ -23,6 +23,7 @@ router.group(() => {
   router.post('/auth/logout', [AuthController, 'logout'])
   router.get('/auth/me', [AuthController, 'me'])
   router.patch('/auth/profile', [AuthController, 'updateProfile'])
+  router.patch('/auth/status', [AuthController, 'updateStatus'])
 
   // Channels
   router.get('/channels', [ChannelsController, 'index'])
@@ -41,6 +42,10 @@ router.group(() => {
   // Typing indicator
   router.post('/channels/:channelId/typing', [ChannelsController, 'setTyping'])
   router.get('/channels/:channelId/typing', [ChannelsController, 'getTyping'])
+
+  // Draft messages
+  router.post('/channels/:channelId/draft', [ChannelsController, 'setDraft'])
+  router.get('/channels/:channelId/draft/:nickName', [ChannelsController, 'getDraft'])
 }).use(middleware.auth())
 
 // Transmit routes for realtime

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { authApi, setAuthToken, getAuthToken, type User } from 'src/lib/api'
+import { useUserStatusStore } from '../user/userStatus'
 
 interface AuthState {
   user: User | null
@@ -39,13 +40,15 @@ export const useAuthStore = defineStore('auth', {
       try {
         this.loading = true
         
-        // Check if we have a stored token
         const token = getAuthToken()
         if (token) {
           try {
             this.user = await authApi.me()
+            if (this.user.status) {
+              const userStatus = useUserStatusStore()
+              userStatus.setStatusFromBackend(this.user.status)
+            }
           } catch {
-            // Token is invalid
             setAuthToken(null)
           }
         }
@@ -72,6 +75,10 @@ export const useAuthStore = defineStore('auth', {
 
         setAuthToken(token)
         this.user = user
+        if (user.status) {
+          const userStatus = useUserStatusStore()
+          userStatus.setStatusFromBackend(user.status)
+        }
 
         return { success: true }
       } catch (error) {
@@ -90,6 +97,10 @@ export const useAuthStore = defineStore('auth', {
 
         setAuthToken(token)
         this.user = user
+        if (user.status) {
+          const userStatus = useUserStatusStore()
+          userStatus.setStatusFromBackend(user.status)
+        }
 
         return { success: true }
       } catch (error) {

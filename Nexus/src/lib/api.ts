@@ -1,3 +1,5 @@
+import { PAGINATION, POLLING_INTERVALS } from './constants'
+
 const API_URL = 'http://localhost:3333'
 
 export function setAuthToken(token: string | null) {
@@ -9,7 +11,6 @@ export function setAuthToken(token: string | null) {
 }
 
 export function getAuthToken(): string | null {
-  // Always read from localStorage to ensure we have the latest value
   return localStorage.getItem('auth_token')
 }
 
@@ -40,7 +41,6 @@ async function request<T>(
   return response.json()
 }
 
-// Auth API
 export const authApi = {
   register: (data: { firstName: string; lastName: string; nickName: string; email: string; password: string }) =>
     request<{ user: User; token: string }>('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
@@ -54,9 +54,11 @@ export const authApi = {
 
   updateProfile: (data: { firstName?: string; lastName?: string; notifyMentionsOnly?: boolean }) =>
     request<User>('/auth/profile', { method: 'PATCH', body: JSON.stringify(data) }),
+
+  updateStatus: (status: string) =>
+    request<{ id: number; status: string }>('/auth/status', { method: 'PATCH', body: JSON.stringify({ status }) }),
 }
 
-// Channels API
 export const channelsApi = {
   list: () => request<Channel[]>('/channels'),
 
@@ -80,17 +82,21 @@ export const channelsApi = {
   delete: (channelId: number) =>
     request<{ message: string }>(`/channels/${channelId}`, { method: 'DELETE' }),
 
-  // Typing indicator
   setTyping: (channelId: number) =>
     request<{ success: boolean }>(`/channels/${channelId}/typing`, { method: 'POST' }),
 
   getTyping: (channelId: number) =>
     request<{ typing: string[] }>(`/channels/${channelId}/typing`),
+
+  setDraft: (channelId: number, content: string) =>
+    request<{ success: boolean }>(`/channels/${channelId}/draft`, { method: 'POST', body: JSON.stringify({ content }) }),
+
+  getDraft: (channelId: number, nickName: string) =>
+    request<{ draft: string | null }>(`/channels/${channelId}/draft/${nickName}`),
 }
 
-// Messages API
 export const messagesApi = {
-  list: (channelId: number, page = 1, limit = 50) =>
+  list: (channelId: number, page = 1, limit = PAGINATION.MESSAGES_PER_PAGE) =>
     request<{ data: Message[]; meta: { total: number; perPage: number; currentPage: number; lastPage: number } }>(
       `/channels/${channelId}/messages?page=${page}&limit=${limit}`
     ),
@@ -99,7 +105,6 @@ export const messagesApi = {
     request<Message>(`/channels/${channelId}/messages`, { method: 'POST', body: JSON.stringify({ content }) }),
 }
 
-// Types
 export interface User {
   id: number
   firstName: string
@@ -107,6 +112,7 @@ export interface User {
   nickName: string
   email: string
   notifyMentionsOnly: boolean
+  status?: string
 }
 
 export interface Channel {
@@ -131,6 +137,7 @@ export interface ChannelMember {
     firstName: string
     lastName: string
     nickName: string
+    status?: string
   }
 }
 
@@ -149,32 +156,37 @@ export interface Message {
   } | null
 }
 
-// Simple polling client for realtime (no Transmit needed)
 export const realtimeClient = {
   pollingInterval: null as ReturnType<typeof setInterval> | null,
-  
+
   startPolling(channelId: number, onNewMessages: (messages: Message[]) => void, lastMessageId: number = 0) {
     this.stopPolling()
-    
+
     let lastId = lastMessageId
-    
-    this.pollingInterval = setInterval(() => {
-      void (async () => {
-        try {
-          const response = await messagesApi.list(channelId, 1, 50)
-          const newMessages = response.data.filter(m => m.id > lastId)
-          
-          if (newMessages.length > 0) {
-            lastId = Math.max(...newMessages.map(m => m.id))
-            onNewMessages(newMessages)
-          }
-        } catch (error) {
+
+    const poll = async () => {
+      try {
+        const response = await messagesApi.list(channelId, 1, PAGINATION.MESSAGES_PER_PAGE)
+        const newMessages = response.data.filter(m => m.id > lastId)
+
+        if (newMessages.length > 0) {
+          lastId = Math.max(...newMessages.map(m => m.id))
+          onNewMessages(newMessages)
+        }
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
           console.error('Polling error:', error)
         }
-      })()
-    }, 3000) // Poll every 3 seconds
+      }
+    }
+
+    void poll()
+
+    this.pollingInterval = setInterval(() => {
+      void poll()
+    }, POLLING_INTERVALS.MESSAGES)
   },
-  
+
   stopPolling() {
     if (this.pollingInterval) {
       clearInterval(this.pollingInterval)
@@ -182,3 +194,4 @@ export const realtimeClient = {
     }
   }
 }
+

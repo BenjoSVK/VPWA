@@ -52,7 +52,6 @@
         :key="member.id"
         class="member-item"
         clickable
-        @click="handleMemberClick(member.user?.nickName)"
       >
         <q-item-section avatar>
           <q-avatar color="primary" text-color="white" size="40px">
@@ -61,8 +60,19 @@
         </q-item-section>
 
         <q-item-section>
-          <q-item-label class="text-weight-medium">
-            {{ member.user?.nickName ?? 'Unknown' }}
+          <q-item-label class="text-weight-medium row items-center q-gutter-xs">
+            <span>{{ member.user?.nickName ?? 'Unknown' }}</span>
+            <span
+              v-if="getMemberStatus(member)"
+              class="row items-center q-gutter-xs status-badge"
+              style="vertical-align: middle;"
+            >
+              <div
+                class="status-dot"
+                :class="getStatusDotClass(getMemberStatus(member)!)"
+              />
+              <span class="text-caption" :class="getStatusTextClass(getMemberStatus(member)!)">{{ getStatusLabel(getMemberStatus(member)!) }}</span>
+            </span>
           </q-item-label>
           <q-item-label caption class="text-grey">
             {{ member.user?.firstName }} {{ member.user?.lastName }}
@@ -104,6 +114,7 @@
 import { ref, computed, watch } from 'vue';
 import { useChannelsStore } from 'src/stores/channels/channels';
 import { useScrollHandling } from '../composables/useScrollHandling';
+import type { ChannelMember } from 'src/lib/api';
 
 const channels = useChannelsStore();
 const { onMouseEnter, onMouseLeave } = useScrollHandling('.q-drawer');
@@ -136,9 +147,30 @@ function isAdmin(userId: number): boolean {
   return selectedChannel.value?.adminId === userId;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function handleMemberClick(nickName?: string) {
-  // Reserved for future use (e.g., open user profile)
+function getMemberStatus(member: ChannelMember): string | null {
+  const status = member.user?.status || 'Online';
+  if (!status || typeof status !== 'string' || !status.trim()) {
+    return 'Online';
+  }
+  return status.trim();
+}
+
+function getStatusTextClass(status: string): string {
+  if (status === 'Online') return 'text-green'
+  if (status === 'Do Not Disturb') return 'text-orange'
+  return 'text-grey'
+}
+
+function getStatusDotClass(status: string): string {
+  if (status === 'Online') return 'status-dot-online'
+  if (status === 'Do Not Disturb') return 'status-dot-dnd'
+  return 'status-dot-offline'
+}
+
+function getStatusLabel(status: string): string {
+  if (status === 'Online') return 'Online'
+  if (status === 'Do Not Disturb') return 'DND'
+  return 'Offline'
 }
 
 async function kickMember(nickName?: string) {
@@ -151,9 +183,12 @@ async function kickMember(nickName?: string) {
   }
 }
 
-// Clear search when channel changes
-watch(() => channels.selectedId, () => {
+// Clear search when channel changes and fetch members
+watch(() => channels.selectedId, async (newId) => {
   searchQuery.value = '';
+  if (newId) {
+    await channels.fetchMembers(newId);
+  }
 });
 </script>
 
@@ -165,5 +200,32 @@ watch(() => channels.selectedId, () => {
   &:hover {
     background: rgba(0, 0, 0, 0.04);
   }
+}
+
+.status-badge {
+  margin-left: 8px;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.status-dot-online {
+  background-color: #4caf50;
+}
+
+.status-dot-offline {
+  background-color: #9e9e9e;
+}
+
+.status-dot-dnd {
+  background-color: #ff9800;
 }
 </style>

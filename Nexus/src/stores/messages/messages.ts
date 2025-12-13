@@ -2,6 +2,9 @@ import { defineStore } from 'pinia'
 import { messagesApi, realtimeClient, type Message } from 'src/lib/api'
 import { useAuthStore } from '../auth/auth'
 import { useChannelsStore } from '../channels/channels'
+import { useUserStatusStore } from '../user/userStatus'
+import { PAGINATION, NOTIFICATION } from 'src/lib/constants'
+import { getErrorMessage } from 'src/lib/errorHandler'
 
 interface MessagesState {
   messagesByChannel: Map<number, Message[]>
@@ -9,8 +12,6 @@ interface MessagesState {
   hasMore: Map<number, boolean>
   currentSubscriptionChannelId: number | null
 }
-
-const PAGE_SIZE = 50
 
 export const useMessagesStore = defineStore('messages', {
   state: (): MessagesState => ({
@@ -43,9 +44,9 @@ export const useMessagesStore = defineStore('messages', {
 
       try {
         const currentMessages = this.messagesByChannel.get(channelId) ?? []
-        const page = loadMore ? Math.ceil(currentMessages.length / PAGE_SIZE) + 1 : 1
+        const page = loadMore ? Math.ceil(currentMessages.length / PAGINATION.MESSAGES_PER_PAGE) + 1 : 1
 
-        const response = await messagesApi.list(channelId, page, PAGE_SIZE)
+        const response = await messagesApi.list(channelId, page, PAGINATION.MESSAGES_PER_PAGE)
 
         if (loadMore) {
           this.messagesByChannel.set(channelId, [...response.data, ...currentMessages])
@@ -57,7 +58,9 @@ export const useMessagesStore = defineStore('messages', {
 
         return response.data
       } catch (error) {
-        console.error('Error fetching messages:', error)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching messages:', error)
+        }
         return []
       } finally {
         this.loading = false
@@ -67,29 +70,32 @@ export const useMessagesStore = defineStore('messages', {
     async sendMessage(content: string): Promise<{ success: boolean; error?: string; message?: Message }> {
       const auth = useAuthStore()
       const channels = useChannelsStore()
+      const userStatus = useUserStatusStore()
 
       if (!auth.currentUserId || !channels.selectedId) {
         return { success: false, error: 'Not authenticated or no channel selected' }
       }
 
+      if (userStatus.isOffline) {
+        return { success: false, error: 'Cannot send messages while offline' }
+      }
+
       try {
         const message = await messagesApi.send(channels.selectedId, content)
 
-        // Add to local state immediately
         const currentMessages = this.messagesByChannel.get(channels.selectedId) ?? []
         this.messagesByChannel.set(channels.selectedId, [...currentMessages, message])
 
         return { success: true, message }
       } catch (error) {
-        console.error('Error sending message:', error)
-        return { success: false, error: error instanceof Error ? error.message : 'Failed to send message' }
+        return { success: false, error: getErrorMessage(error) }
       }
     },
 
     setupRealtimeSubscription(channelId: number) {
       const auth = useAuthStore()
-      
-      // Stop previous polling
+      const userStatus = useUserStatusStore()
+
       if (this.currentSubscriptionChannelId && this.currentSubscriptionChannelId !== channelId) {
         realtimeClient.stopPolling()
       }
@@ -100,26 +106,25 @@ export const useMessagesStore = defineStore('messages', {
 
       this.currentSubscriptionChannelId = channelId
 
-      // Get last message ID for polling
+      if (userStatus.isOffline) {
+        return
+      }
+
       const currentMessages = this.messagesByChannel.get(channelId) ?? []
-      const lastMessageId = currentMessages.length > 0 
-        ? Math.max(...currentMessages.map(m => m.id)) 
+      const lastMessageId = currentMessages.length > 0
+        ? Math.max(...currentMessages.map(m => m.id))
         : 0
 
-      // Start polling for new messages
       realtimeClient.startPolling(channelId, (newMessages) => {
-        // Filter out own messages (already added optimistically)
         const otherMessages = newMessages.filter(m => m.userId !== auth.currentUserId)
-        
+
         if (otherMessages.length > 0) {
           const current = this.messagesByChannel.get(channelId) ?? []
           const existingIds = new Set(current.map(m => m.id))
           const uniqueNew = otherMessages.filter(m => !existingIds.has(m.id))
-          
+
           if (uniqueNew.length > 0) {
             this.messagesByChannel.set(channelId, [...current, ...uniqueNew])
-            
-            // Notify for new messages
             uniqueNew.forEach(msg => this.notifyNewMessage(msg))
           }
         }
@@ -128,8 +133,12 @@ export const useMessagesStore = defineStore('messages', {
 
     notifyNewMessage(message: Message) {
       const auth = useAuthStore()
-      
-      // Check if user wants mentions only
+      const userStatus = useUserStatusStore()
+
+      if (userStatus.isDnd || userStatus.isOffline) {
+        return
+      }
+
       if (auth.user?.notifyMentionsOnly) {
         const myNickName = auth.user.nickName
         if (!message.mentionedUsers.includes(myNickName)) {
@@ -137,16 +146,14 @@ export const useMessagesStore = defineStore('messages', {
         }
       }
 
-      // Check if app is visible
       if (document.visibilityState === 'visible') {
         return
       }
 
-      // Show notification
       if ('Notification' in window && Notification.permission === 'granted') {
         const authorName = message.author?.nickName ?? 'Someone'
-        const body = message.content.length > 100 
-          ? message.content.substring(0, 100) + '...' 
+        const body = message.content.length > NOTIFICATION.MAX_LENGTH
+          ? message.content.substring(0, NOTIFICATION.MAX_LENGTH) + '...'
           : message.content
 
         new Notification(`New message from ${authorName}`, {

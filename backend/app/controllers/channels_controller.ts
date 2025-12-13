@@ -6,9 +6,8 @@ import User from '#models/user'
 import { DateTime } from 'luxon'
 import transmit from '@adonisjs/transmit/services/main'
 
-// In-memory typing status store
-// Key: channelId, Value: Map of userId -> { nickName, expiresAt }
 const typingUsers: Map<number, Map<number, { nickName: string; expiresAt: Date }>> = new Map()
+const draftMessages: Map<number, Map<number, { nickName: string; content: string; updatedAt: Date }>> = new Map()
 
 export default class ChannelsController {
   // Get all channels user is member of or can join (public)
@@ -208,6 +207,7 @@ export default class ChannelsController {
           firstName: m.user.firstName,
           lastName: m.user.lastName,
           nickName: m.user.nickName,
+          status: m.user.status || 'Online',
         },
       }))
     )
@@ -500,6 +500,53 @@ export default class ChannelsController {
     }
 
     return response.ok({ typing: activeTypers })
+  }
+
+  async setDraft({ auth, params, request, response }: HttpContext) {
+    const user = auth.user!
+    const channelId = Number(params.channelId)
+    const { content } = request.only(['content'])
+
+    if (!draftMessages.has(channelId)) {
+      draftMessages.set(channelId, new Map())
+    }
+
+    const channelDrafts = draftMessages.get(channelId)!
+
+    if (content && content.trim().length > 0) {
+      channelDrafts.set(user.id, {
+        nickName: user.nickName,
+        content: content.trim(),
+        updatedAt: new Date()
+      })
+    } else {
+      channelDrafts.delete(user.id)
+    }
+
+    return response.ok({ success: true })
+  }
+
+  async getDraft({ auth, params, response }: HttpContext) {
+    const user = auth.user!
+    const channelId = Number(params.channelId)
+    const nickName = params.nickName
+
+    const channelDrafts = draftMessages.get(channelId)
+    if (!channelDrafts) {
+      return response.ok({ draft: null })
+    }
+
+    const targetUser = await User.findBy('nickName', nickName)
+    if (!targetUser) {
+      return response.notFound({ message: 'User not found' })
+    }
+
+    const draft = channelDrafts.get(targetUser.id)
+    if (!draft) {
+      return response.ok({ draft: null })
+    }
+
+    return response.ok({ draft: draft.content })
   }
 }
 

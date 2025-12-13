@@ -16,25 +16,23 @@ import cUsers from 'src/components/UsersComponent.vue';
 import cInfoPage from 'src/components/InfoPageComponent.vue';
 import { useChannelsStore } from 'src/stores/channels/channels';
 import { useAuthStore } from 'src/stores/auth/auth';
+import { useMessagesStore } from 'src/stores/messages/messages';
 
 const channels = useChannelsStore();
 const auth = useAuthStore();
+const messages = useMessagesStore();
 
 const selectedChannel = computed(() => channels.selected);
 
 onMounted(async () => {
-  // Initialize auth if not already done
   await auth.initialize();
-  
-  // Fetch channels
   await channels.fetchChannels();
-  
-  // Setup realtime subscription
   channels.setupRealtimeSubscription();
 });
 
 onUnmounted(() => {
-  // Stop polling when leaving the page
-  channels.stopPolling();
-});
+  channels.stopPolling()
+  channels.stopTypingPolling()
+  messages.cleanup()
+})
 </script>

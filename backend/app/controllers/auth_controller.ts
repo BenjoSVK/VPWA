@@ -25,6 +25,7 @@ export default class AuthController {
       email: data.email,
       password: data.password,
       notifyMentionsOnly: false,
+      status: 'Online',
     })
 
     const token = await User.accessTokens.create(user)
@@ -37,6 +38,7 @@ export default class AuthController {
         nickName: user.nickName,
         email: user.email,
         notifyMentionsOnly: user.notifyMentionsOnly,
+        status: user.status,
       },
       token: token.value!.release(),
     })
@@ -57,6 +59,7 @@ export default class AuthController {
           nickName: user.nickName,
           email: user.email,
           notifyMentionsOnly: user.notifyMentionsOnly,
+          status: user.status,
         },
         token: token.value!.release(),
       })
@@ -82,6 +85,7 @@ export default class AuthController {
       nickName: user.nickName,
       email: user.email,
       notifyMentionsOnly: user.notifyMentionsOnly,
+      status: user.status,
     })
   }
 
@@ -99,6 +103,24 @@ export default class AuthController {
       nickName: user.nickName,
       email: user.email,
       notifyMentionsOnly: user.notifyMentionsOnly,
+      status: user.status,
+    })
+  }
+
+  async updateStatus({ auth, request, response }: HttpContext) {
+    const user = auth.user!
+    const { status } = request.only(['status'])
+
+    if (!['Online', 'Offline', 'Do Not Disturb'].includes(status)) {
+      return response.badRequest({ message: 'Invalid status' })
+    }
+
+    user.status = status
+    await user.save()
+
+    return response.ok({
+      id: user.id,
+      status: user.status,
     })
   }
 }
