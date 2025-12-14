@@ -1,122 +1,130 @@
-# Nexus IRC (Slack-style) – Quasar + AdonisJS
+# Nexus
 
-**Technológie:**  
-- Frontend: [Quasar (Vue 3, PWA)](https://quasar.dev/)  
-- Backend: [AdonisJS](https://adonisjs.com/)  
-- Databáza: [PostgreSQL](https://www.postgresql.org)
+IRC-style chat aplikácia postavená na Vue 3, Quasar a AdonisJS. Semestrálny projekt pre VPWA.
 
----
+## Čo to je?
 
-## 📌 Popis projektu
-Aplikácia je semestrálny projekt – textová komunikácia v štýle IRC/Slack.  
-Cieľom je vytvoriť prototyp vo Figme a následne funkčnú **progressive web app (PWA)**.  
+Nexus je minimalistická chatovacia aplikácia inšpirovaná klasickým IRC protokolom, ale s moderným webovým rozhraním. Funguje ako PWA, takže ju môžeš nainštalovať na desktop aj mobile a používať ju ako natívnu appku.
 
-Použité sú **Quasar, AdonisJS a PostgreSQL**. Ostatné podporné knižnice ktoré sa využívaju (Pinia, axios, linting) .
+## Tech stack
 
----
+**Frontend:**
+- Vue 3 (Composition API)
+- Quasar Framework
+- Pinia pre state management
+- Vue Router
+- Axios pre API calls
 
-## ✨ Funkcionalita
+**Backend:**
+- AdonisJS 6
+- SQLite (alebo PostgreSQL)
+- AdonisJS Transmit pre real-time komunikáciu (WebSockets)
+- JWT autentifikácia
 
-### Autentifikácia
-- Registrácia, prihlásenie, odhlásenie
-- Používateľ: `meno`, `priezvisko`, `nickName (unikátne)`, `email (unikátny)`
+## Features
 
-### Kanály
-- Typy: public / private
-- Admin = zakladateľ kanála
-- Operácie: vytvoriť, opustiť, zrušiť
-- Kanál neaktívny 30 dní sa automaticky zmaže (uvoľní sa jeho `channelName`)
+- ✅ Real-time messaging cez WebSockets
+- ✅ Kanály (verejné aj súkromné)
+- ✅ User management (invite, kick, revoke)
+- ✅ Typing indicators
+- ✅ Draft messages
+- ✅ User status (online/offline)
+- ✅ PWA podpora
+- ✅ IRC-style príkazy (`/join`, `/kick`, `/invite`, atď.)
+- ✅ Mentions (`@username`)
 
-### Príkazy
-- `/join channelName [private]` – vstup alebo vytvorenie kanála
-- `/invite nickName`, `/revoke nickName` – správa pozvánok
-- `/kick nickName` – 3 hlasy = ban; admin môže okamžite
-- `/quit` – admin ruší kanál
-- `/cancel` – používateľ odíde; ak admin odíde → kanál zaniká
-- `/list` – zoznam členov kanála
+## Ako to spustiť
 
-### Chat
-- Mentions: `@nickname` (zvýraznenie)
-- História správ + infinite scroll
-- Indikátor písania + živý náhľad rozpísaného textu
+### Backend
 
-### Status & Notifikácie
-- Status: online / DND / offline
-- Notifikácie len keď appka nie je viditeľná
-- Mentions-only režim
-- Pri DND žiadne notifikácie
-- Offline → správy sa nedoručujú; po návrate sa zosynchronizujú
+```bash
+cd backend
+npm install
 
----
+# Skopíruj .env.example do .env a nastav si databázu
+cp .env.example .env
 
-## 🚀 Fázy projektu
+# Spusti migrácie
+node ace migration:run
 
-### Fáza 1
-- Klikateľný responzívny prototyp v Quasare (SPA)
-- UML logický model (JPG export)
+# Spusti dev server
+npm run dev
+```
 
-### Fáza 2
-- Plná PWA s real-time backendom
-- Migrácie databázy
-- Dokumentácia a seed dáta
-
----
-
-## 🗂 Štruktúra repozitára
-
----
-
-## 🖥 Frontend (Quasar)
-- Inicializovaný projekt s PWA módou
-- Routing: `/login`, `/signup`, `/channels`, `/c/:channelName`, `/settings`, `404`
-- Pinia stores: user, channels, messages, invites, notifications, presence
-- Infinite scroll: `QVirtualScroll` + lazy loading
-- Notifikácie: Web Notifications (rešpektujú DND/mentions-only)
-- Reálny čas: websocket (typing indicator, live draft)
-- Command line input pre príkazy `/join`, `/invite`, atď.
-
----
-
-## ⚙️ Backend (AdonisJS + PostgreSQL)
-- Autentifikácia: JWT
-- Databázové entity (Lucid ORM):
-  - `users`, `channels`, `channel_members`, `messages`, `invites`, `kick_votes`, `channel_bans`
-- API:
-  - **Auth**: `/auth/signup`, `/auth/login`, `/auth/logout`, `/me`
-  - **Channels**: list/create/close/join/leave/invite/revoke/kick/listMembers
-  - **Messages**: fetch history, post message/command
-  - **Presence**: update status, typing, draft_update
-- WebSocket kanály:
-  - `presence:{channelId}`
-  - `messages:{channelId}`
-  - `invites:{userId}`
-
----
-
-## 📡 Prepojenie FE ↔ BE
-- API klient v TypeScripte (axios/fetch)
-- Pinia stores pre prácu s kanálmi, správami, prihlásením, prítomnosťou a notifikáciami
-- Offline správy sa neodosielajú; po návrate sa správy zosynchronizujú
-- App Visibility API → kontrola kedy posielať notifikácie
-
----
-
-## 📄 Dokumentácia
-- UML model: Mermaid + PlantUML (+ JPG export)
-- `/docs/ARCHITEKTURA.md` – popis architektúry
-- `/docs/POZADAVKY.md` – mapovanie požiadaviek na riešenie
-- README so spustením projektu a seed skriptami
-
----
-
-## ▶️ Spustenie projektu
+Backend beží na `http://localhost:3333` (alebo čo máš v .env nastavené).
 
 ### Frontend
-```bash
-cd app/frontend
-npm install
-quasar dev
 
-cd app/backend
+```bash
+cd Nexus
 npm install
-node ace serve --watch
+npm run dev
+```
+
+Frontend beží na `http://localhost:9000` (alebo iný port ak je 9000 obsadený).
+
+## Príkazy
+
+Aplikácia podporuje IRC-style príkazy:
+
+- `/join channelName [private]` - Pripojíš sa alebo vytvoríš kanál
+- `/invite nickName` - Pozveš používateľa do kanálu
+- `/revoke nickName` - Odstrániš používateľa zo súkromného kanálu (len admin)
+- `/kick nickName` - Vyhodíš používateľa z verejného kanálu
+- `/quit` - Vymažeš kanál (len admin)
+- `/cancel` - Opustíš kanál
+- `/list` - Zobrazíš členov kanálu
+- `/help` - Zobrazíš všetky príkazy
+
+Tiež môžeš používať mentions: `@username` v správe.
+
+## Projektová štruktúra
+
+```
+VPWA/
+├── backend/          # AdonisJS API
+│   ├── app/
+│   │   ├── controllers/
+│   │   ├── models/
+│   │   ├── middleware/
+│   │   └── validators/
+│   └── database/
+│       └── migrations/
+│
+└── Nexus/            # Vue 3 + Quasar frontend
+    ├── src/
+    │   ├── components/
+    │   ├── pages/
+    │   ├── stores/   # Pinia stores
+    │   ├── layouts/
+    │   └── services/
+```
+
+## Databáza
+
+Projekt používa SQLite defaultne, ale môžeš prepnúť na PostgreSQL ak chceš. Migrácie sú v `backend/database/migrations/`.
+
+Hlavné tabuľky:
+- `users` - používatelia
+- `channels` - kanály
+- `channel_members` - členovia kanálov
+- `messages` - správy
+- `kicks` - hlasovanie o kicknutí používateľov
+
+## API endpoints
+
+Všetky endpointy sú v `backend/start/routes.ts`. Hlavné skupiny:
+
+- `/auth/*` - registrácia, login, logout, profil
+- `/channels/*` - správa kanálov
+- `/channels/:id/messages` - správy v kanáli
+- `/channels/:id/typing` - typing indicators
+- `/channels/:id/draft` - draft messages
+
+Väčšina endpointov vyžaduje autentifikáciu cez JWT token.
+
+## Poznámky
+
+- Backend používa AdonisJS Transmit pre real-time features, takže potrebuješ WebSocket podporu
+- Frontend je PWA-ready, takže sa dá nainštalovať ako appka
+- Pre produkciu by som odporučil použiť PostgreSQL namiesto SQLite

@@ -208,7 +208,7 @@ export async function executeCommand(input: string): Promise<CommandResult | nul
 
     case 'list': {
       // Show the users panel temporarily (no popup needed)
-      channels.showUsersListTemporarily()
+      void channels.showUsersListTemporarily()
       return null // Don't show any banner
     }
 

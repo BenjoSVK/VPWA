@@ -114,6 +114,17 @@ export const useAuthStore = defineStore('auth', {
     async logout() {
       this.loading = true
       
+      // Set status to offline before logout
+      try {
+        const userStatus = useUserStatusStore()
+        await userStatus.setOffline()
+      } catch (error) {
+        // Ignore errors when setting offline status
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error setting offline status:', error)
+        }
+      }
+      
       try {
         await authApi.logout()
       } catch (error) {
