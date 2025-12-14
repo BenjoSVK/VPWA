@@ -1,130 +1,157 @@
-# Nexus
+# Nexus IRC (Slack-style) – Quasar + AdonisJS
 
-IRC-style chat aplikácia postavená na Vue 3, Quasar a AdonisJS. Semestrálny projekt pre VPWA.
+**Technológie:**  
 
-## Čo to je?
+- Frontend: [Quasar (Vue 3, PWA)](https://quasar.dev/)  
 
-Nexus je minimalistická chatovacia aplikácia inšpirovaná klasickým IRC protokolom, ale s moderným webovým rozhraním. Funguje ako PWA, takže ju môžeš nainštalovať na desktop aj mobile a používať ju ako natívnu appku.
+- Backend: [AdonisJS](https://adonisjs.com/)  
 
-## Tech stack
+- Databáza: [SQLite](https://www.sqlite.org/)
 
-**Frontend:**
-- Vue 3 (Composition API)
-- Quasar Framework
-- Pinia pre state management
-- Vue Router
-- Axios pre API calls
+---
 
-**Backend:**
-- AdonisJS 6
-- SQLite (alebo PostgreSQL)
-- AdonisJS Transmit pre real-time komunikáciu (WebSockets)
-- JWT autentifikácia
+## 📌 Popis projektu
 
-## Features
+Aplikácia je semestrálny projekt – textová komunikácia v štýle IRC/Slack.  
 
-- ✅ Real-time messaging cez WebSockets
-- ✅ Kanály (verejné aj súkromné)
-- ✅ User management (invite, kick, revoke)
-- ✅ Typing indicators
-- ✅ Draft messages
-- ✅ User status (online/offline)
-- ✅ PWA podpora
-- ✅ IRC-style príkazy (`/join`, `/kick`, `/invite`, atď.)
-- ✅ Mentions (`@username`)
+Cieľom je vytvoriť prototyp vo Figme a následne funkčnú **progressive web app (PWA)**.  
 
-## Ako to spustiť
+Použité sú **Quasar, AdonisJS a SQLite**. Ostatné podporné knižnice ktoré sa využívajú (Pinia, axios, linting).
+
+---
+
+## ✨ Funkcionalita
+
+### Autentifikácia
+
+- Registrácia, prihlásenie, odhlásenie
+- Používateľ: `firstName`, `lastName`, `nickName (unikátne)`, `email (unikátny)`
+- Aktualizácia profilu a statusu
+
+### Kanály
+
+- Typy: public / private
+- Admin = zakladateľ kanála
+- Operácie: vytvoriť, opustiť, zrušiť
+- Kanál neaktívny 30 dní sa automaticky zmaže (uvoľní sa jeho `name`)
+
+### Príkazy
+
+- `/join channelName [private]` – vstup alebo vytvorenie kanála
+- `/invite nickName`, `/revoke nickName` – správa pozvánok
+- `/kick nickName` – 3 hlasy = ban; admin môže okamžite
+- `/quit` – admin ruší kanál
+- `/cancel` – používateľ odíde; ak admin odíde → kanál zaniká
+- `/list` – zoznam členov kanála
+- `/help` – zoznam dostupných príkazov
+
+### Chat
+
+- Mentions: `@nickname` (zvýraznenie)
+- História správ + infinite scroll
+- Indikátor písania + živý náhľad rozpísaného textu (draft)
+
+### Status & Notifikácie
+
+- Status: online / DND / offline
+- Notifikácie len keď appka nie je viditeľná
+- Mentions-only režim
+- Pri DND žiadne notifikácie
+- Offline → správy sa nedoručujú; po návrate sa zosynchronizujú
+
+---
+
+## 🗂 Štruktúra repozitára
+
+```
+VPWA/
+├── Nexus/              # Frontend (Quasar)
+│   ├── src/
+│   │   ├── components/  # Vue komponenty
+│   │   ├── layouts/    # Layout komponenty
+│   │   ├── pages/      # Stránky aplikácie
+│   │   ├── stores/     # Pinia stores
+│   │   ├── services/    # Command parser
+│   │   ├── lib/        # API klient, konštanty
+│   │   └── router/     # Vue Router
+│   └── quasar.config.ts
+└── backend/            # Backend (AdonisJS)
+    ├── app/
+    │   ├── controllers/ # API controllery
+    │   ├── models/      # Lucid modely
+    │   ├── validators/  # Validátory
+    │   └── middleware/  # Middleware
+    ├── database/
+    │   └── migrations/  # Databázové migrácie
+    └── start/
+        └── routes.ts    # API routes
+```
+
+---
+
+## 🖥 Frontend (Quasar)
+
+- Inicializovaný projekt s PWA módou
+- Routing: `/auth/login`, `/auth/register`, `/chat`, `/chat/:id`, `/profile`, `404`
+- Pinia stores: auth, channels, messages, user (status), drawer
+- Infinite scroll: paginácia správ
+- Notifikácie: Web Notifications (rešpektujú DND/mentions-only)
+- Reálny čas: polling (typing indicator, live draft)
+- Command line input pre príkazy `/join`, `/invite`, atď.
+
+---
+
+## ⚙️ Backend (AdonisJS + SQLite)
+
+- Autentifikácia: JWT (Access Tokens)
+- Databázové entity (Lucid ORM):
+  - `users`, `channels`, `channel_members`, `messages`, `kicks`, `access_tokens`
+- API:
+  - **Auth**: `/auth/register`, `/auth/login`, `/auth/logout`, `/auth/me`, `/auth/profile`, `/auth/status`
+  - **Channels**: `/channels` (list), `/channels/join` (create/join), `/channels/:id/members`, `/channels/:id/invite`, `/channels/:id/revoke`, `/channels/:id/kick`, `/channels/:id/leave`, `/channels/:id` (DELETE)
+  - **Messages**: `/channels/:channelId/messages` (GET, POST)
+  - **Typing**: `/channels/:channelId/typing` (GET, POST)
+  - **Draft**: `/channels/:channelId/draft` (POST), `/channels/:channelId/draft/:nickName` (GET)
+
+---
+
+## 📡 Prepojenie FE ↔ BE
+
+- API klient v TypeScripte (fetch)
+- Pinia stores pre prácu s kanálmi, správami, prihlásením, prítomnosťou a notifikáciami
+- Offline správy sa neodosielajú; po návrate sa správy zosynchronizujú
+- App Visibility API → kontrola kedy posielať notifikácie
+- Polling pre real-time aktualizácie správ a typing indikátorov
+
+---
+
+## ▶️ Spustenie projektu
 
 ### Backend
 
 ```bash
 cd backend
 npm install
-
-# Skopíruj .env.example do .env a nastav si databázu
-cp .env.example .env
-
-# Spusti migrácie
 node ace migration:run
-
-# Spusti dev server
-npm run dev
+node ace serve --watch
 ```
 
-Backend beží na `http://localhost:3333` (alebo čo máš v .env nastavené).
+Backend beží na `http://localhost:3333`
 
 ### Frontend
 
 ```bash
 cd Nexus
 npm install
-npm run dev
+quasar dev
 ```
 
-Frontend beží na `http://localhost:9000` (alebo iný port ak je 9000 obsadený).
+Frontend beží na `http://localhost:9000`
 
-## Príkazy
+---
 
-Aplikácia podporuje IRC-style príkazy:
+## 📝 Poznámky
 
-- `/join channelName [private]` - Pripojíš sa alebo vytvoríš kanál
-- `/invite nickName` - Pozveš používateľa do kanálu
-- `/revoke nickName` - Odstrániš používateľa zo súkromného kanálu (len admin)
-- `/kick nickName` - Vyhodíš používateľa z verejného kanálu
-- `/quit` - Vymažeš kanál (len admin)
-- `/cancel` - Opustíš kanál
-- `/list` - Zobrazíš členov kanálu
-- `/help` - Zobrazíš všetky príkazy
-
-Tiež môžeš používať mentions: `@username` v správe.
-
-## Projektová štruktúra
-
-```
-VPWA/
-├── backend/          # AdonisJS API
-│   ├── app/
-│   │   ├── controllers/
-│   │   ├── models/
-│   │   ├── middleware/
-│   │   └── validators/
-│   └── database/
-│       └── migrations/
-│
-└── Nexus/            # Vue 3 + Quasar frontend
-    ├── src/
-    │   ├── components/
-    │   ├── pages/
-    │   ├── stores/   # Pinia stores
-    │   ├── layouts/
-    │   └── services/
-```
-
-## Databáza
-
-Projekt používa SQLite defaultne, ale môžeš prepnúť na PostgreSQL ak chceš. Migrácie sú v `backend/database/migrations/`.
-
-Hlavné tabuľky:
-- `users` - používatelia
-- `channels` - kanály
-- `channel_members` - členovia kanálov
-- `messages` - správy
-- `kicks` - hlasovanie o kicknutí používateľov
-
-## API endpoints
-
-Všetky endpointy sú v `backend/start/routes.ts`. Hlavné skupiny:
-
-- `/auth/*` - registrácia, login, logout, profil
-- `/channels/*` - správa kanálov
-- `/channels/:id/messages` - správy v kanáli
-- `/channels/:id/typing` - typing indicators
-- `/channels/:id/draft` - draft messages
-
-Väčšina endpointov vyžaduje autentifikáciu cez JWT token.
-
-## Poznámky
-
-- Backend používa AdonisJS Transmit pre real-time features, takže potrebuješ WebSocket podporu
-- Frontend je PWA-ready, takže sa dá nainštalovať ako appka
-- Pre produkciu by som odporučil použiť PostgreSQL namiesto SQLite
+- Databáza SQLite sa vytvára automaticky v `backend/tmp/db.sqlite3`
+- Pre produkciu je potrebné nastaviť správne environment premenné
+- PWA funkcionalita je nakonfigurovaná v `quasar.config.ts`
