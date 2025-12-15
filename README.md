@@ -130,10 +130,12 @@ VPWA/
 ### Backend
 
 ```bash
-cd backend
+cd Nexus-BackEnd
 npm install
-node ace migration:run
-node ace serve --watch
+cp .env.example .env
+node ace generate:key --force
+mkdir -p tmp && node ace migration:run
+npm run dev
 ```
 
 Backend beží na `http://localhost:3333`
@@ -141,7 +143,7 @@ Backend beží na `http://localhost:3333`
 ### Frontend
 
 ```bash
-cd Nexus
+cd Nexus-FrontEnd
 npm install
 quasar dev
 ```
